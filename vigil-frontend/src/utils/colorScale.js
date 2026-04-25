@@ -4,7 +4,7 @@ import { scaleLinear } from 'd3-scale';
 // Low index (good) = green, high index (bad) = red
 export const getCountryColor = (indexValue) => {
   if (indexValue === null || indexValue === undefined) {
-    return '#2a2f4a'; // Default gray for no data
+    return '#7d7d78ff'; // Dull dark gray for no data - blends with background
   }
 
   const colorScale = scaleLinear()

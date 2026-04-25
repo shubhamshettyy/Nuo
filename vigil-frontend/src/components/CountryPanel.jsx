@@ -10,33 +10,21 @@ export default function CountryPanel({ country, onClose }) {
 
   useEffect(() => {
     if (country) {
-      console.log('🔍 Panel opened for country:', country);
       fetchBrief(country.iso3, country);
       fetchDetails(country.iso3);
     }
   }, [country, fetchBrief, fetchDetails]);
 
-  useEffect(() => {
-    if (details) {
-      console.log('📊 Details loaded:', details);
-    }
-  }, [details]);
-
-  if (!country) {
-    console.log('❌ No country selected');
-    return null;
-  }
-
-  console.log('✅ Rendering panel for:', country.name);
+  if (!country) return null;
 
   const trendIcon = details?.trend === 'up' ? '↑' : details?.trend === 'down' ? '↓' : '→';
   const trendColor = details?.trend === 'up' ? '#ef4444' : details?.trend === 'down' ? '#10b981' : '#9ca3af';
 
   return (
-    <div className="country-panel" style={{ border: '2px solid red' }}>
+    <div className="country-panel">
       <div className="panel-header">
         <div>
-          <h2 style={{ color: 'white' }}>{country.name}</h2>
+          <h2>{country.name}</h2>
           <p className="country-code">{country.iso3}</p>
         </div>
         <button className="close-button" onClick={onClose}>×</button>
@@ -44,7 +32,7 @@ export default function CountryPanel({ country, onClose }) {
 
       <div className="panel-content">
         {/* Index Display */}
-        <div className="index-display" style={{ border: '1px solid yellow' }}>
+        <div className="index-display">
           <div className="index-row">
             <div className="index-value" style={{ color: getIndexTextColor(country.index_value) }}>
               {formatIndex(country.index_value)}
@@ -72,19 +60,9 @@ export default function CountryPanel({ country, onClose }) {
           )}
         </div>
 
-        {/* Debug Info */}
-        <div style={{ padding: '20px', background: '#333', margin: '10px 0', color: 'white' }}>
-          <h4>🐛 Debug Info:</h4>
-          <p>Details Loading: {detailsLoading ? 'Yes' : 'No'}</p>
-          <p>Has Details: {details ? 'Yes' : 'No'}</p>
-          <p>Has Metrics: {details?.metrics ? 'Yes' : 'No'}</p>
-          <p>Has Articles: {details?.news_articles?.length || 0} articles</p>
-          <p>Has Topics: {details?.trending_topics?.length || 0} topics</p>
-        </div>
-
         {/* Metrics Grid */}
         {details && details.metrics && (
-          <div className="metrics-section" style={{ border: '1px solid green' }}>
+          <div className="metrics-section">
             <h3>Key Metrics</h3>
             <div className="metrics-grid">
               <div className="metric-card">
@@ -129,7 +107,7 @@ export default function CountryPanel({ country, onClose }) {
 
         {/* Trending Topics */}
         {details && details.trending_topics && details.trending_topics.length > 0 && (
-          <div className="trending-section" style={{ border: '1px solid blue' }}>
+          <div className="trending-section">
             <h3>Trending Topics</h3>
             <div className="trending-list">
               {details.trending_topics.map((topic, index) => (
@@ -149,7 +127,7 @@ export default function CountryPanel({ country, onClose }) {
 
         {/* News Articles */}
         {details && details.news_articles && details.news_articles.length > 0 && (
-          <div className="news-section" style={{ border: '1px solid purple' }}>
+          <div className="news-section">
             <h3>Recent News</h3>
             <div className="news-list">
               {details.news_articles.map((article) => (
@@ -177,7 +155,7 @@ export default function CountryPanel({ country, onClose }) {
         )}
 
         {/* Intelligence Brief */}
-        <div className="brief-section" style={{ border: '1px solid orange' }}>
+        <div className="brief-section">
           <h3>Intelligence Brief</h3>
           
           {briefLoading && (
