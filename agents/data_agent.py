@@ -10,15 +10,12 @@ from uagents import Agent, Context
 from agents.shared.models import RawDataPayload
 
 FACT_CHECKER_ADDRESS = os.getenv("FACT_CHECKER_AGENT_ADDRESS", "")
-MONGO_DATA_API_URL = os.getenv("MONGO_DATA_API_URL", "")
-MONGO_DATA_API_KEY = os.getenv("MONGO_DATA_API_KEY", "")
-MONGO_DATABASE = os.getenv("MONGO_DATABASE", "vigil")
-MONGO_DATASOURCE = os.getenv("MONGO_DATASOURCE", "Cluster0")
-ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY", "")
+BACKEND_URL = os.getenv("BACKEND_URL", "")
+INTERNAL_WEBHOOK_SECRET = os.getenv("INTERNAL_WEBHOOK_SECRET", "")
 
 ALL_COUNTRIES = ["AGO", "TCD", "COD", "SDN", "ETH", "AFG", "HTI", "YEM"]
 
-agent = Agent(name="vigil_data_agent", seed=os.getenv("DATA_AGENT_SEED", "vigil-data-agent-seed"))
+agent = Agent(name="vigil_data_agent", seed=os.getenv("DATA_AGENT_SEED", "vigil-data-agent-seed"), port=int(os.getenv("AGENT_PORT", "8003")))
 
 
 def fetch_gdelt_articles() -> List[dict]:
@@ -55,7 +52,22 @@ def fetch_acled_data() -> Dict[str, dict]:
 
 
 def fetch_unhcr_data() -> Dict[str, int]:
-    return {"SDN": 9100000, "TCD": 5200000, "AGO": 7300000}
+    displaced = {}
+    try:
+        resp = requests.get(
+            "https://api.unhcr.org/population/v1/population/",
+            params={"year": 2023, "limit": 500},
+            timeout=15,
+        )
+        resp.raise_for_status()
+        for item in resp.json().get("items", []):
+            iso3 = item.get("coo_iso") or item.get("coo", "")
+            if len(iso3) == 3:
+                count = int(item.get("refugees", 0) or 0) + int(item.get("idps", 0) or 0)
+                displaced[iso3] = displaced.get(iso3, 0) + count
+    except Exception:
+        return {"SDN": 9100000, "TCD": 5200000, "AGO": 7300000}
+    return displaced
 
 
 def fetch_who_outbreaks() -> Dict[str, int]:
@@ -97,21 +109,10 @@ def compute_invisible_index(
     return computed
 
 
-def write_to_mongo(computed: Dict[str, dict], cycle_id: str) -> None:
-    if not MONGO_DATA_API_URL or not MONGO_DATA_API_KEY:
+def write_to_backend(computed: Dict[str, dict], cycle_id: str) -> None:
+    if not BACKEND_URL:
         return
-    headers = {"api-key": MONGO_DATA_API_KEY, "Content-Type": "application/json"}
     ts = datetime.datetime.utcnow().isoformat() + "Z"
-    for iso3, item in computed.items():
-        payload = {
-            "collection": "countries",
-            "database": MONGO_DATABASE,
-            "dataSource": MONGO_DATASOURCE,
-            "filter": {"_id": iso3},
-            "update": {"$set": {"_id": iso3, "last_updated": ts, **item}},
-            "upsert": True,
-        }
-        requests.post(f"{MONGO_DATA_API_URL}/action/updateOne", headers=headers, json=payload, timeout=8)
     snapshots = [
         {
             "country_code": iso3,
@@ -123,17 +124,15 @@ def write_to_mongo(computed: Dict[str, dict], cycle_id: str) -> None:
         }
         for iso3, item in computed.items()
     ]
-    requests.post(
-        f"{MONGO_DATA_API_URL}/action/insertMany",
-        headers=headers,
-        json={
-            "collection": "index_snapshots",
-            "database": MONGO_DATABASE,
-            "dataSource": MONGO_DATASOURCE,
-            "documents": snapshots,
-        },
-        timeout=8,
-    )
+    try:
+        requests.post(
+            f"{BACKEND_URL}/internal/countries",
+            headers={"Content-Type": "application/json", "X-Webhook-Secret": INTERNAL_WEBHOOK_SECRET},
+            json={"countries": computed, "snapshots": snapshots},
+            timeout=15,
+        )
+    except Exception as exc:
+        print(f"write_to_backend failed: {exc}")
 
 
 @agent.on_interval(period=900.0)
@@ -155,7 +154,7 @@ async def update_globe(ctx: Context):
         dict(gdelt_raw),
         ALL_COUNTRIES,
     )
-    write_to_mongo(computed, cycle_id)
+    write_to_backend(computed, cycle_id)
 
     if FACT_CHECKER_ADDRESS:
         payload = RawDataPayload(

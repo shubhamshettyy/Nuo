@@ -8,10 +8,8 @@ class Settings(BaseSettings):
 
     anthropic_api_key: str = ""
 
-    mongo_data_api_url: str = ""
-    mongo_data_api_key: str = ""
+    mongo_uri: str = ""
     mongo_database: str = "vigil"
-    mongo_datasource: str = "Cluster0"
 
     internal_webhook_secret: str = ""
 

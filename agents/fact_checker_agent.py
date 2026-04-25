@@ -12,12 +12,10 @@ MAX_CYCLE_MULTIPLIER = 5.0
 MIN_GLOBAL_ARTICLES = 1
 
 ALERT_AGENT_ADDRESS = os.getenv("ALERT_AGENT_ADDRESS", "")
-MONGO_DATA_API_URL = os.getenv("MONGO_DATA_API_URL", "")
-MONGO_DATA_API_KEY = os.getenv("MONGO_DATA_API_KEY", "")
-MONGO_DATABASE = os.getenv("MONGO_DATABASE", "vigil")
-MONGO_DATASOURCE = os.getenv("MONGO_DATASOURCE", "Cluster0")
+BACKEND_URL = os.getenv("BACKEND_URL", "")
+INTERNAL_WEBHOOK_SECRET = os.getenv("INTERNAL_WEBHOOK_SECRET", "")
 
-agent = Agent(name="vigil_fact_checker", seed=os.getenv("FACT_CHECKER_SEED", "vigil-fact-checker-seed"))
+agent = Agent(name="vigil_fact_checker", seed=os.getenv("FACT_CHECKER_SEED", "vigil-fact-checker-seed"), port=int(os.getenv("AGENT_PORT", "8001")))
 
 
 @agent.on_message(model=RawDataPayload)
@@ -47,29 +45,23 @@ async def fact_check(ctx: Context, sender: str, msg: RawDataPayload):
         else:
             verified[country] = score
 
-    if quarantined and MONGO_DATA_API_URL and MONGO_DATA_API_KEY:
-        docs = []
-        for item in quarantined:
-            docs.append(
-                {
-                    "cycle_id": msg.cycle_id,
-                    "country_code": item["country"],
-                    "rejected_score": item["score"],
-                    "last_known_good_score": item["last_known_good"],
-                    "reasons": item["reasons"],
-                    "timestamp": datetime.datetime.utcnow().isoformat() + "Z",
-                }
-            )
+    if quarantined and BACKEND_URL:
+        docs = [
+            {
+                "cycle_id": msg.cycle_id,
+                "country_code": item["country"],
+                "rejected_score": item["score"],
+                "last_known_good_score": item["last_known_good"],
+                "reasons": item["reasons"],
+                "timestamp": datetime.datetime.utcnow().isoformat() + "Z",
+            }
+            for item in quarantined
+        ]
         try:
             requests.post(
-                f"{MONGO_DATA_API_URL}/action/insertMany",
-                headers={"api-key": MONGO_DATA_API_KEY, "Content-Type": "application/json"},
-                json={
-                    "collection": "quarantine_log",
-                    "database": MONGO_DATABASE,
-                    "dataSource": MONGO_DATASOURCE,
-                    "documents": docs,
-                },
+                f"{BACKEND_URL}/internal/quarantine",
+                headers={"Content-Type": "application/json", "X-Webhook-Secret": INTERNAL_WEBHOOK_SECRET},
+                json={"documents": docs},
                 timeout=8,
             )
         except Exception as exc:

@@ -12,7 +12,7 @@ SPIKE_THRESHOLD_RELATIVE = 2.0
 BACKEND_URL = os.getenv("BACKEND_URL", "")
 INTERNAL_WEBHOOK_SECRET = os.getenv("INTERNAL_WEBHOOK_SECRET", "")
 
-agent = Agent(name="vigil_alert_agent", seed=os.getenv("ALERT_AGENT_SEED", "vigil-alert-agent-seed"))
+agent = Agent(name="vigil_alert_agent", seed=os.getenv("ALERT_AGENT_SEED", "vigil-alert-agent-seed"), port=int(os.getenv("AGENT_PORT", "8002")))
 
 
 @agent.on_message(model=VerifiedIndexUpdate)
