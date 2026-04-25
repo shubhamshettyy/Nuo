@@ -6,16 +6,19 @@ import {
   ZoomableGroup
 } from 'react-simple-maps';
 import { getCountryColor } from '../utils/colorScale';
+import { numericToAlpha3 } from '../utils/isoMapping';
 import './WorldMap.css';
 
 const geoUrl = 'https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json';
 
 function WorldMap({ countries, onCountryClick, selectedCountry }) {
-  // Create a map of ISO3 codes to index values
+  // Create a map of ISO3 codes to country data
   const countryDataMap = countries.reduce((acc, country) => {
-    acc[country.iso3] = country.index_value;
+    acc[country.iso3] = country;
     return acc;
   }, {});
+
+  console.log('✅ Countries loaded:', countries.length);
 
   return (
     <div className="world-map-container">
@@ -30,8 +33,11 @@ function WorldMap({ countries, onCountryClick, selectedCountry }) {
           <Geographies geography={geoUrl}>
             {({ geographies }) =>
               geographies.map((geo) => {
-                const iso3 = geo.id;
-                const indexValue = countryDataMap[iso3];
+                // Convert numeric ISO code to alpha-3
+                const numericCode = geo.id;
+                const iso3 = numericToAlpha3[numericCode];
+                const country = countryDataMap[iso3];
+                const indexValue = country?.index_value;
                 const isSelected = selectedCountry?.iso3 === iso3;
 
                 return (
@@ -39,8 +45,8 @@ function WorldMap({ countries, onCountryClick, selectedCountry }) {
                     key={geo.rsmKey}
                     geography={geo}
                     onClick={() => {
-                      const country = countries.find(c => c.iso3 === iso3);
                       if (country) {
+                        console.log('🌍 Clicked:', country.name, '(' + iso3 + ')');
                         onCountryClick(country);
                       }
                     }}
@@ -57,7 +63,7 @@ function WorldMap({ countries, onCountryClick, selectedCountry }) {
                         strokeWidth: 1.5,
                         outline: 'none',
                         filter: 'brightness(1.2)',
-                        cursor: 'pointer',
+                        cursor: country ? 'pointer' : 'default',
                       },
                       pressed: {
                         fill: getCountryColor(indexValue),
