@@ -1,0 +1,52 @@
+{
+  "countries": [
+    {
+      "_id": "AGO",
+      "name": "Angola",
+      "lat": -11.2,
+      "lng": 17.87,
+      "invisible_index": 15847.3,
+      "suffering_score": 7230.1,
+      "attention_score": 0.456,
+      "displaced_persons": 7300000,
+      "conflict_events": 14,
+      "article_count_filtered": 2,
+      "last_updated": "2026-04-25T03:15:00Z"
+    },
+    {
+      "_id": "TCD",
+      "name": "Chad",
+      "lat": 15.45,
+      "lng": 18.73,
+      "invisible_index": 13220.6,
+      "suffering_score": 6610.3,
+      "attention_score": 0.5,
+      "displaced_persons": 5200000,
+      "conflict_events": 10,
+      "article_count_filtered": 2,
+      "last_updated": "2026-04-25T03:15:00Z"
+    },
+    {
+      "_id": "SDN",
+      "name": "Sudan",
+      "lat": 12.86,
+      "lng": 30.22,
+      "invisible_index": 18910.0,
+      "suffering_score": 9455.0,
+      "attention_score": 0.5,
+      "displaced_persons": 9100000,
+      "conflict_events": 27,
+      "article_count_filtered": 3,
+      "last_updated": "2026-04-25T03:15:00Z"
+    }
+  ],
+  "alerts": [
+    {
+      "country_code": "SDN",
+      "previous_score": 8200,
+      "new_score": 18910,
+      "delta": 10710,
+      "fired_at": "2026-04-25T03:15:10Z"
+    }
+  ]
+}
