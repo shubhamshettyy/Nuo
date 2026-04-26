@@ -10,15 +10,18 @@ export default function AlertBanner() {
   }
 
   const latestAlert = alerts[0];
+  const tickerText = alerts.map((alert) => alert.message).join('   //   ');
 
   return (
     <div className="alert-banner">
-      <div className="alert-icon">⚠️</div>
+      <div className="alert-label">⬡ INTEGRITY BREACH</div>
       <div className="alert-content">
-        <span className="alert-label">ALERT:</span>
-        <span className="alert-message">{latestAlert.message}</span>
-        <span className="alert-country">{latestAlert.country_name}</span>
+        <div className="alert-scroll">
+          <span>{tickerText}</span>
+          <span>{tickerText}</span>
+        </div>
       </div>
+      <div className="alert-country">{latestAlert.country_name}</div>
     </div>
   );
 }

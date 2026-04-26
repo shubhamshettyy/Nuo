@@ -3,14 +3,17 @@
   top: 0;
   left: 0;
   right: 0;
-  background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%);
-  padding: 12px 20px;
+  height: 36px;
+  padding: 0 14px;
+  background: linear-gradient(90deg, #1a0008, #2d0010, #1a0008);
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 14px;
   z-index: 1000;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  border-top: 2px solid #ff1a45;
+  box-shadow: 0 2px 20px rgba(255, 26, 69, 0.4);
   animation: slideDown 0.3s ease-out;
+  overflow: hidden;
 }
 
 @keyframes slideDown {
@@ -22,42 +25,62 @@
   }
 }
 
-.alert-icon {
-  font-size: 24px;
-  animation: pulse 2s ease-in-out infinite;
+.alert-label {
+  font-family: var(--font-display);
+  font-size: 10px;
+  letter-spacing: 2px;
+  color: #ff5a7c;
+  white-space: nowrap;
+  animation: breachBlink 1.5s steps(2, start) infinite;
 }
 
-@keyframes pulse {
-  0%, 100% {
-    transform: scale(1);
+@keyframes breachBlink {
+  0%,
+  100% {
+    opacity: 1;
   }
   50% {
-    transform: scale(1.1);
+    opacity: 0.45;
   }
 }
 
 .alert-content {
+  flex: 1;
+  overflow: hidden;
+  position: relative;
+  mask-image: linear-gradient(to right, transparent, #000 8%, #000 92%, transparent);
+}
+
+.alert-scroll {
   display: flex;
-  align-items: center;
-  gap: 8px;
-  flex: 1;
-  font-size: 14px;
-}
-
-.alert-label {
-  font-weight: 700;
+  width: max-content;
+  gap: 54px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: rgba(255, 154, 174, 0.9);
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: 1px;
+  animation: marquee 24s linear infinite;
 }
 
-.alert-message {
-  flex: 1;
-  font-weight: 500;
+@keyframes marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
 }
 
 .alert-country {
-  font-weight: 600;
-  padding: 4px 12px;
-  background: rgba(255, 255, 255, 0.2);
+  font-family: var(--font-mono);
+  font-weight: 700;
+  color: #ff1a45;
+  padding: 4px 10px;
+  border: 1px solid rgba(255, 26, 69, 0.4);
+  background: rgba(255, 26, 69, 0.1);
   border-radius: 4px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-size: 11px;
 }

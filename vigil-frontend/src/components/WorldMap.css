@@ -1,13 +1,130 @@
 .world-map-container {
   width: 100%;
   height: 100%;
-  background: radial-gradient(ellipse at center, #1a1f3a 0%, #0a0e27 100%);
+  background: radial-gradient(ellipse 80% 70% at 50% 50%, #040b1a 0%, #050710 100%);
   display: flex;
   align-items: center;
   justify-content: center;
+  position: relative;
+  overflow: hidden;
+  box-shadow: inset 0 0 80px rgba(0, 0, 0, 0.6);
 }
 
 .world-map-container svg {
   width: 100%;
   height: 100%;
+  filter: drop-shadow(0 0 40px rgba(0, 20, 60, 0.8));
+}
+
+.pulse-marker .pulse-ring {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: pulse-ring 2.4s ease-out infinite;
+}
+
+.pulse-marker .ring-two {
+  animation-delay: 0.7s;
+}
+
+.pulse-critical .pulse-ring {
+  animation-duration: 1.8s;
+}
+
+.map-tooltip-g {
+  pointer-events: none;
+}
+
+.map-tooltip-g rect {
+  fill: rgba(4, 10, 24, 0.9);
+  stroke: rgba(0, 212, 255, 0.35);
+  stroke-width: 1;
+}
+
+.map-tooltip-g .tooltip-country {
+  fill: #d0e4ff;
+  font-family: "Rajdhani", sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.4px;
+}
+
+.map-tooltip-g .tooltip-index {
+  fill: #00d4ff;
+  font-family: "Space Mono", monospace;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.8px;
+  animation: data-flicker 2.8s linear infinite;
+}
+
+.map-click-hint {
+  position: absolute;
+  bottom: 84px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: rgba(0, 212, 255, 0.05);
+  border: 1px solid rgba(0, 212, 255, 0.18);
+  border-radius: 40px;
+  padding: 9px 20px 9px 14px;
+  backdrop-filter: blur(12px);
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 2.5px;
+  color: rgba(0, 212, 255, 0.75);
+  pointer-events: none;
+  z-index: 20;
+  animation:
+    boot-sequence 0.7s cubic-bezier(0.22, 1, 0.36, 1) 1.2s both,
+    mapHintFadeOut 0.5s ease 8s forwards;
+}
+
+@keyframes mapHintFadeOut {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+.hint-rings {
+  position: relative;
+  width: 22px;
+  height: 22px;
+  flex-shrink: 0;
+}
+
+.hint-ring {
+  position: absolute;
+  border-radius: 50%;
+  border: 1.5px solid rgba(0, 212, 255, 0.55);
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 6px;
+  height: 6px;
+}
+
+.hint-ring-1 {
+  animation: hint-pulse 2s ease-out infinite;
+}
+
+.hint-ring-2 {
+  animation: hint-pulse 2s ease-out 0.75s infinite;
+}
+
+.hint-dot {
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  background: #00d4ff;
+  border-radius: 50%;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  box-shadow: 0 0 6px rgba(0, 212, 255, 0.8);
 }
