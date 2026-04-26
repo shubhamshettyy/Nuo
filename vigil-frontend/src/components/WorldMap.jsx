@@ -44,7 +44,7 @@ function Beacon({ coords, critical }) {
   );
 }
 
-function WorldMap({ countries, onCountryClick, selectedCountry, activeCategory, activeCatLabel }) {
+function WorldMap({ countries, onCountryClick, selectedCountry, activeCategory, activeCatLabel, lang = "en" }) {
   const [tt, setTt]         = useState({ on: false, x: 0, y: 0, name: '', val: null });
   const [noHint, setNoHint] = useState(false);
   const [fading, setFading] = useState(false);
@@ -138,7 +138,7 @@ function WorldMap({ countries, onCountryClick, selectedCountry, activeCategory, 
         {tt.on && (
           <g className="tt" transform={`translate(${tt.x + 12} ${tt.y - 16})`}>
             <rect width={140} height={42} rx="3" />
-            <text className="tt-name" x="10" y="16">{getCountryName(tt.name, lang)}</text>
+            <text className="tt-name" x="10" y="16">{tt.name}</text>
             <text className="tt-val"  x="10" y="31">{getIndexLabel(tt.val)}</text>
           </g>
         )}
