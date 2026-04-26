@@ -14,6 +14,11 @@ async def get_globe():
     return await mongo.get_countries()
 
 
+@router.get("/country/{iso3}/details")
+async def get_country_details(iso3: str):
+    return await mongo.get_country_details(iso3)
+
+
 @router.get("/country/{iso3}")
 async def get_country(iso3: str):
     return await mongo.get_country(iso3)
