@@ -1,47 +1,30 @@
 import { scaleLinear } from 'd3-scale';
 
-// Color scale for index values (0-100)
-// Low index (good) = green, high index (bad) = red
-export const getCountryColor = (indexValue) => {
-  if (indexValue === null || indexValue === undefined) {
-    return '#7d7d78ff'; // Dull dark gray for no data - blends with background
-  }
-
-  const colorScale = scaleLinear()
+export const getCountryColor = (val) => {
+  if (val == null) return '#151525';
+  const scale = scaleLinear()
     .domain([0, 25, 50, 75, 100])
     .range(['#10b981', '#84cc16', '#fbbf24', '#f97316', '#ef4444']);
-
-  return colorScale(indexValue);
+  return scale(Math.min(val, 100));
 };
 
-// Get text color based on index severity
-export const getIndexTextColor = (indexValue) => {
-  if (indexValue === null || indexValue === undefined) {
-    return '#9ca3af';
-  }
-
-  if (indexValue < 25) return '#10b981'; // Green
-  if (indexValue < 50) return '#84cc16'; // Lime
-  if (indexValue < 75) return '#fbbf24'; // Amber
-  return '#ef4444'; // Red
+export const getIndexTextColor = (val) => {
+  if (val == null) return '#44445a';
+  if (val < 25) return '#10b981';
+  if (val < 50) return '#d4a017';
+  if (val < 75) return '#f97316';
+  return '#ef4444';
 };
 
-// Format index value for display
-export const formatIndex = (value) => {
-  if (value === null || value === undefined) {
-    return 'N/A';
-  }
-  return Math.round(value);
+export const formatIndex = (val) => {
+  if (val == null) return 'N/A';
+  return Math.round(val);
 };
 
-// Get severity label
-export const getSeverityLabel = (indexValue) => {
-  if (indexValue === null || indexValue === undefined) {
-    return 'No Data';
-  }
-
-  if (indexValue < 25) return 'Low Risk';
-  if (indexValue < 50) return 'Moderate';
-  if (indexValue < 75) return 'Elevated';
+export const getSeverityLabel = (val) => {
+  if (val == null) return 'No Data';
+  if (val < 25) return 'Low Risk';
+  if (val < 50) return 'Moderate';
+  if (val < 75) return 'Elevated';
   return 'Critical';
 };

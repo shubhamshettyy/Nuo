@@ -1,63 +1,76 @@
-.alert-banner {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%);
-  padding: 12px 20px;
+.alert-bar {
+  height: 30px;
   display: flex;
   align-items: center;
   gap: 12px;
-  z-index: 1000;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-  animation: slideDown 0.3s ease-out;
-}
-
-@keyframes slideDown {
-  from {
-    transform: translateY(-100%);
-  }
-  to {
-    transform: translateY(0);
-  }
-}
-
-.alert-icon {
-  font-size: 24px;
-  animation: pulse 2s ease-in-out infinite;
-}
-
-@keyframes pulse {
-  0%, 100% {
-    transform: scale(1);
-  }
-  50% {
-    transform: scale(1.1);
-  }
-}
-
-.alert-content {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  flex: 1;
-  font-size: 14px;
+  padding: 0 14px;
+  background: rgba(192,57,43,0.08);
+  border-bottom: 1px solid rgba(192,57,43,0.25);
+  flex-shrink: 0;
+  overflow: hidden;
 }
 
 .alert-label {
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
+  font-family: var(--mono);
+  font-size: 9px;
+  font-weight: 500;
+  letter-spacing: 1.5px;
+  color: var(--red-light);
+  white-space: nowrap;
+  flex-shrink: 0;
+  animation: blink 2s step-end infinite;
 }
 
-.alert-message {
+.alert-divider {
+  width: 1px;
+  height: 12px;
+  background: rgba(192,57,43,0.3);
+  flex-shrink: 0;
+}
+
+.alert-ticker {
   flex: 1;
-  font-weight: 500;
+  overflow: hidden;
+  mask-image: linear-gradient(to right, transparent, #000 4%, #000 96%, transparent);
+}
+
+.alert-scroll {
+  display: flex;
+  width: max-content;
+  gap: 60px;
+  animation: ticker-scroll 36s linear infinite;
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 300;
+  color: rgba(192,57,43,0.75);
+  letter-spacing: 0.3px;
+  white-space: nowrap;
 }
 
 .alert-country {
-  font-weight: 600;
-  padding: 4px 12px;
-  background: rgba(255, 255, 255, 0.2);
-  border-radius: 4px;
+  font-family: var(--mono);
+  font-size: 9px;
+  font-weight: 500;
+  color: var(--red);
+  padding: 1px 7px;
+  border: 1px solid rgba(192,57,43,0.35);
+  border-radius: 2px;
+  letter-spacing: 1px;
+  flex-shrink: 0;
+  text-transform: uppercase;
 }
+
+.alert-close {
+  background: none;
+  border: none;
+  color: rgba(192,57,43,0.4);
+  font-size: 14px;
+  cursor: pointer;
+  padding: 0;
+  line-height: 1;
+  flex-shrink: 0;
+  font-family: var(--sans);
+  transition: color 0.15s;
+}
+
+.alert-close:hover { color: var(--red); }

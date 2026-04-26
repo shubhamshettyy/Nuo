@@ -1,342 +1,381 @@
-// Enhanced mock data with news articles, trending topics, and detailed metrics
-
-export const mockCountries = [
-  // North America
-  { iso3: 'USA', name: 'United States', index_value: 45.2, latitude: 37.0902, longitude: -95.7129 },
-  { iso3: 'CAN', name: 'Canada', index_value: 28.5, latitude: 56.1304, longitude: -106.3468 },
-  { iso3: 'MEX', name: 'Mexico', index_value: 52.8, latitude: 23.6345, longitude: -102.5528 },
-  
-  // South America
-  { iso3: 'BRA', name: 'Brazil', index_value: 58.3, latitude: -14.2350, longitude: -51.9253 },
-  { iso3: 'ARG', name: 'Argentina', index_value: 43.7, latitude: -38.4161, longitude: -63.6167 },
-  { iso3: 'CHL', name: 'Chile', index_value: 35.2, latitude: -35.6751, longitude: -71.5430 },
-  { iso3: 'COL', name: 'Colombia', index_value: 61.4, latitude: 4.5709, longitude: -74.2973 },
-  { iso3: 'VEN', name: 'Venezuela', index_value: 78.9, latitude: 6.4238, longitude: -66.5897 },
-  { iso3: 'PER', name: 'Peru', index_value: 48.6, latitude: -9.1900, longitude: -75.0152 },
-  
-  // Europe
-  { iso3: 'GBR', name: 'United Kingdom', index_value: 32.1, latitude: 55.3781, longitude: -3.4360 },
-  { iso3: 'FRA', name: 'France', index_value: 38.9, latitude: 46.2276, longitude: 2.2137 },
-  { iso3: 'DEU', name: 'Germany', index_value: 29.7, latitude: 51.1657, longitude: 10.4515 },
-  { iso3: 'ITA', name: 'Italy', index_value: 42.3, latitude: 41.8719, longitude: 12.5674 },
-  { iso3: 'ESP', name: 'Spain', index_value: 40.5, latitude: 40.4637, longitude: -3.7492 },
-  { iso3: 'POL', name: 'Poland', index_value: 44.8, latitude: 51.9194, longitude: 19.1451 },
-  { iso3: 'UKR', name: 'Ukraine', index_value: 82.4, latitude: 48.3794, longitude: 31.1656 },
-  { iso3: 'ROU', name: 'Romania', index_value: 47.2, latitude: 45.9432, longitude: 24.9668 },
-  { iso3: 'NLD', name: 'Netherlands', index_value: 26.3, latitude: 52.1326, longitude: 5.2913 },
-  { iso3: 'BEL', name: 'Belgium', index_value: 31.7, latitude: 50.5039, longitude: 4.4699 },
-  { iso3: 'SWE', name: 'Sweden', index_value: 24.1, latitude: 60.1282, longitude: 18.6435 },
-  { iso3: 'NOR', name: 'Norway', index_value: 22.8, latitude: 60.4720, longitude: 8.4689 },
-  { iso3: 'DNK', name: 'Denmark', index_value: 23.5, latitude: 56.2639, longitude: 9.5018 },
-  { iso3: 'FIN', name: 'Finland', index_value: 25.9, latitude: 61.9241, longitude: 25.7482 },
-  
-  // Asia
-  { iso3: 'CHN', name: 'China', index_value: 71.6, latitude: 35.8617, longitude: 104.1954 },
-  { iso3: 'JPN', name: 'Japan', index_value: 33.2, latitude: 36.2048, longitude: 138.2529 },
-  { iso3: 'IND', name: 'India', index_value: 56.8, latitude: 20.5937, longitude: 78.9629 },
-  { iso3: 'IDN', name: 'Indonesia', index_value: 54.3, latitude: -0.7893, longitude: 113.9213 },
-  { iso3: 'PAK', name: 'Pakistan', index_value: 68.7, latitude: 30.3753, longitude: 69.3451 },
-  { iso3: 'BGD', name: 'Bangladesh', index_value: 62.4, latitude: 23.6850, longitude: 90.3563 },
-  { iso3: 'KOR', name: 'South Korea', index_value: 36.5, latitude: 35.9078, longitude: 127.7669 },
-  { iso3: 'THA', name: 'Thailand', index_value: 49.2, latitude: 15.8700, longitude: 100.9925 },
-  { iso3: 'VNM', name: 'Vietnam', index_value: 58.9, latitude: 14.0583, longitude: 108.2772 },
-  { iso3: 'PHL', name: 'Philippines', index_value: 55.6, latitude: 12.8797, longitude: 121.7740 },
-  { iso3: 'MYS', name: 'Malaysia', index_value: 46.3, latitude: 4.2105, longitude: 101.9758 },
-  { iso3: 'SGP', name: 'Singapore', index_value: 27.4, latitude: 1.3521, longitude: 103.8198 },
-  
-  // Middle East
-  { iso3: 'TUR', name: 'Turkey', index_value: 64.2, latitude: 38.9637, longitude: 35.2433 },
-  { iso3: 'IRN', name: 'Iran', index_value: 75.8, latitude: 32.4279, longitude: 53.6880 },
-  { iso3: 'IRQ', name: 'Iraq', index_value: 79.3, latitude: 33.2232, longitude: 43.6793 },
-  { iso3: 'SAU', name: 'Saudi Arabia', index_value: 51.7, latitude: 23.8859, longitude: 45.0792 },
-  { iso3: 'ARE', name: 'United Arab Emirates', index_value: 39.8, latitude: 23.4241, longitude: 53.8478 },
-  { iso3: 'ISR', name: 'Israel', index_value: 47.9, latitude: 31.0461, longitude: 34.8516 },
-  { iso3: 'SYR', name: 'Syria', index_value: 88.6, latitude: 34.8021, longitude: 38.9968 },
-  { iso3: 'YEM', name: 'Yemen', index_value: 85.2, latitude: 15.5527, longitude: 48.5164 },
-  
-  // Africa
-  { iso3: 'NGA', name: 'Nigeria', index_value: 72.5, latitude: 9.0820, longitude: 8.6753 },
-  { iso3: 'ZAF', name: 'South Africa', index_value: 53.8, latitude: -30.5595, longitude: 22.9375 },
-  { iso3: 'EGY', name: 'Egypt', index_value: 66.4, latitude: 26.8206, longitude: 30.8025 },
-  { iso3: 'ETH', name: 'Ethiopia', index_value: 69.7, latitude: 9.1450, longitude: 40.4897 },
-  { iso3: 'KEN', name: 'Kenya', index_value: 58.2, latitude: -0.0236, longitude: 37.9062 },
-  { iso3: 'GHA', name: 'Ghana', index_value: 48.9, latitude: 7.9465, longitude: -1.0232 },
-  { iso3: 'AGO', name: 'Angola', index_value: 65.3, latitude: -11.2027, longitude: 17.8739 },
-  { iso3: 'SDN', name: 'Sudan', index_value: 81.7, latitude: 12.8628, longitude: 30.2176 },
-  { iso3: 'DZA', name: 'Algeria', index_value: 57.6, latitude: 28.0339, longitude: 1.6596 },
-  { iso3: 'MAR', name: 'Morocco', index_value: 50.4, latitude: 31.7917, longitude: -7.0926 },
-  
-  // Oceania
-  { iso3: 'AUS', name: 'Australia', index_value: 29.3, latitude: -25.2744, longitude: 133.7751 },
-  { iso3: 'NZL', name: 'New Zealand', index_value: 21.6, latitude: -40.9006, longitude: 174.8860 },
-  { iso3: 'PNG', name: 'Papua New Guinea', index_value: 63.4, latitude: -6.3150, longitude: 143.9555 },
-  
-  // Russia
-  { iso3: 'RUS', name: 'Russia', index_value: 73.2, latitude: 61.5240, longitude: 105.3188 },
+// ─── CATEGORY DEFINITIONS ────────────────────────────────────────────────────
+export const CATEGORIES = [
+  { id: 'all',      label: 'All Crises',  icon: '🌐' },
+  { id: 'war',      label: 'War',         icon: '⚔️'  },
+  { id: 'water',    label: 'Water',       icon: '💧' },
+  { id: 'famine',   label: 'Famine',      icon: '🌾' },
+  { id: 'disease',  label: 'Disease',     icon: '🦠' },
+  { id: 'climate',  label: 'Climate',     icon: '🌡️'  },
+  { id: 'tech',     label: 'Tech',        icon: '📡' },
 ];
 
-// Detailed country data with news articles and trending topics
-export const mockCountryDetails = {
-  'USA': {
-    iso3: 'USA',
-    name: 'United States',
-    index_value: 45.2,
-    trend: 'up', // up, down, stable
-    change_24h: +2.3,
-    last_updated: new Date().toISOString(),
-    metrics: {
-      misinformation_score: 48,
-      bot_activity: 42,
-      fact_check_ratio: 65,
-      source_diversity: 78
-    },
-    trending_topics: [
-      { topic: 'Election Integrity', volume: 8500, sentiment: 'negative' },
-      { topic: 'AI Deepfakes', volume: 6200, sentiment: 'neutral' },
-      { topic: 'Climate Policy', volume: 4800, sentiment: 'mixed' }
-    ],
-    news_articles: [
-      {
-        id: 1,
-        title: 'Coordinated Disinformation Campaign Targets Swing States',
-        source: 'Reuters',
-        url: 'https://example.com/article1',
-        published: new Date(Date.now() - 3600000 * 2).toISOString(),
-        summary: 'Security researchers have identified a coordinated campaign spreading false election information across social media platforms in key battleground states.',
-        credibility: 'verified',
-        impact_score: 82
-      },
-      {
-        id: 2,
-        title: 'Social Media Platforms Struggle with AI-Generated Content',
-        source: 'The New York Times',
-        url: 'https://example.com/article2',
-        published: new Date(Date.now() - 3600000 * 5).toISOString(),
-        summary: 'Major platforms report difficulty detecting and moderating sophisticated AI-generated political content as elections approach.',
-        credibility: 'verified',
-        impact_score: 76
-      },
-      {
-        id: 3,
-        title: 'Fact-Checkers Report Record Volume of False Claims',
-        source: 'Associated Press',
-        url: 'https://example.com/article3',
-        published: new Date(Date.now() - 3600000 * 8).toISOString(),
-        summary: 'Independent fact-checking organizations see 300% increase in political misinformation compared to same period last year.',
-        credibility: 'verified',
-        impact_score: 71
-      }
-    ]
+// ─── COUNTRIES ───────────────────────────────────────────────────────────────
+// Each country has index_value per category — higher = more ignored in that category
+export const mockCountries = [
+  // index_value is the DEFAULT (all) category score
+  // category_scores override per category
+  {
+    iso3: 'SDN', name: 'Sudan',
+    index_value: 98, latitude: 12.86, longitude: 30.21,
+    invisible_index: 18910, displaced_persons: 10800000, conflict_events: 31, article_count: 5,
+    category_scores: { war: 99, water: 88, famine: 95, disease: 72, climate: 60, tech: 20 },
   },
-  
-  'CHN': {
-    iso3: 'CHN',
-    name: 'China',
-    index_value: 71.6,
-    trend: 'stable',
-    change_24h: -0.5,
-    last_updated: new Date().toISOString(),
-    metrics: {
-      misinformation_score: 76,
-      bot_activity: 68,
-      fact_check_ratio: 22,
-      source_diversity: 31
-    },
-    trending_topics: [
-      { topic: 'Economic Policy', volume: 12000, sentiment: 'positive' },
-      { topic: 'International Relations', volume: 9500, sentiment: 'neutral' },
-      { topic: 'Technology Regulation', volume: 7200, sentiment: 'mixed' }
-    ],
-    news_articles: [
-      {
-        id: 1,
-        title: 'State Media Amplifies Official Narrative on Trade Policy',
-        source: 'BBC',
-        url: 'https://example.com/article1',
-        published: new Date(Date.now() - 3600000 * 4).toISOString(),
-        summary: 'Analysis shows coordinated messaging across state-controlled media platforms regarding recent economic announcements.',
-        credibility: 'verified',
-        impact_score: 88
-      },
-      {
-        id: 2,
-        title: 'Content Filtering Expands to New Platforms',
-        source: 'Financial Times',
-        url: 'https://example.com/article2',
-        published: new Date(Date.now() - 3600000 * 12).toISOString(),
-        summary: 'New regulations extend content moderation requirements to previously exempt platforms and services.',
-        credibility: 'verified',
-        impact_score: 79
-      }
-    ]
+  {
+    iso3: 'AGO', name: 'Angola',
+    index_value: 92, latitude: -11.2, longitude: 17.87,
+    invisible_index: 15847, displaced_persons: 7300000, conflict_events: 14, article_count: 2,
+    category_scores: { war: 85, water: 90, famine: 92, disease: 78, climate: 55, tech: 18 },
   },
-  
-  'UKR': {
-    iso3: 'UKR',
-    name: 'Ukraine',
-    index_value: 82.4,
-    trend: 'up',
-    change_24h: +15.2,
-    last_updated: new Date().toISOString(),
-    metrics: {
-      misinformation_score: 89,
-      bot_activity: 91,
-      fact_check_ratio: 45,
-      source_diversity: 58
-    },
-    trending_topics: [
-      { topic: 'Security Updates', volume: 25000, sentiment: 'negative' },
-      { topic: 'Disinformation Campaigns', volume: 18500, sentiment: 'negative' },
-      { topic: 'International Support', volume: 15200, sentiment: 'positive' }
-    ],
-    news_articles: [
-      {
-        id: 1,
-        title: 'CRITICAL: Massive Spike in Coordinated Disinformation',
-        source: 'The Guardian',
-        url: 'https://example.com/article1',
-        published: new Date(Date.now() - 3600000).toISOString(),
-        summary: 'Security analysts detect unprecedented volume of false narratives targeting Ukrainian information space across multiple platforms.',
-        credibility: 'verified',
-        impact_score: 95
-      },
-      {
-        id: 2,
-        title: 'Bot Networks Amplify False Claims About Aid',
-        source: 'Reuters',
-        url: 'https://example.com/article2',
-        published: new Date(Date.now() - 3600000 * 3).toISOString(),
-        summary: 'Researchers identify bot-driven campaigns spreading misinformation about international humanitarian assistance.',
-        credibility: 'verified',
-        impact_score: 91
-      },
-      {
-        id: 3,
-        title: 'Deepfake Videos Target Government Officials',
-        source: 'Associated Press',
-        url: 'https://example.com/article3',
-        published: new Date(Date.now() - 3600000 * 6).toISOString(),
-        summary: 'AI-generated videos impersonating officials circulate on social media, prompting emergency response from authorities.',
-        credibility: 'verified',
-        impact_score: 87
-      }
-    ]
+  {
+    iso3: 'TCD', name: 'Chad',
+    index_value: 88, latitude: 15.45, longitude: 18.73,
+    invisible_index: 13240, displaced_persons: 1100000, conflict_events: 9, article_count: 1,
+    category_scores: { war: 80, water: 95, famine: 90, disease: 85, climate: 70, tech: 15 },
   },
-  
-  'GBR': {
-    iso3: 'GBR',
-    name: 'United Kingdom',
-    index_value: 32.1,
-    trend: 'stable',
-    change_24h: +0.8,
-    last_updated: new Date().toISOString(),
-    metrics: {
-      misinformation_score: 35,
-      bot_activity: 28,
-      fact_check_ratio: 72,
-      source_diversity: 85
-    },
-    trending_topics: [
-      { topic: 'Political Debates', volume: 7800, sentiment: 'mixed' },
-      { topic: 'Media Regulation', volume: 5400, sentiment: 'neutral' },
-      { topic: 'Public Health', volume: 4200, sentiment: 'positive' }
-    ],
-    news_articles: [
-      {
-        id: 1,
-        title: 'Ofcom Reports Decline in Trust for Online News',
-        source: 'BBC',
-        url: 'https://example.com/article1',
-        published: new Date(Date.now() - 3600000 * 4).toISOString(),
-        summary: 'Latest survey shows growing skepticism toward social media news sources among UK adults.',
-        credibility: 'verified',
-        impact_score: 68
-      },
-      {
-        id: 2,
-        title: 'Fact-Checking Initiatives Gain Government Support',
-        source: 'The Times',
-        url: 'https://example.com/article2',
-        published: new Date(Date.now() - 3600000 * 10).toISOString(),
-        summary: 'New funding announced for independent media literacy and fact-checking programs.',
-        credibility: 'verified',
-        impact_score: 62
-      }
-    ]
+  {
+    iso3: 'CAF', name: 'Central African Republic',
+    index_value: 84, latitude: 6.61, longitude: 20.94,
+    invisible_index: 11430, displaced_persons: 750000, conflict_events: 7, article_count: 1,
+    category_scores: { war: 90, water: 82, famine: 88, disease: 75, climate: 50, tech: 12 },
   },
-  
-  'RUS': {
-    iso3: 'RUS',
-    name: 'Russia',
-    index_value: 73.2,
-    trend: 'stable',
-    change_24h: +1.2,
-    last_updated: new Date().toISOString(),
-    metrics: {
-      misinformation_score: 78,
-      bot_activity: 71,
-      fact_check_ratio: 18,
-      source_diversity: 28
-    },
-    trending_topics: [
-      { topic: 'State Media Coverage', volume: 15000, sentiment: 'positive' },
-      { topic: 'Foreign Policy', volume: 11200, sentiment: 'neutral' },
-      { topic: 'Economic News', volume: 8900, sentiment: 'mixed' }
-    ],
-    news_articles: [
-      {
-        id: 1,
-        title: 'Independent Media Outlets Face New Restrictions',
-        source: 'Financial Times',
-        url: 'https://example.com/article1',
-        published: new Date(Date.now() - 3600000 * 6).toISOString(),
-        summary: 'Additional regulations imposed on remaining independent news organizations operating in the country.',
-        credibility: 'verified',
-        impact_score: 84
-      },
-      {
-        id: 2,
-        title: 'VPN Usage Surges as Content Blocks Expand',
-        source: 'The Guardian',
-        url: 'https://example.com/article2',
-        published: new Date(Date.now() - 3600000 * 15).toISOString(),
-        summary: 'Citizens increasingly turn to encrypted services to access blocked international news sources.',
-        credibility: 'verified',
-        impact_score: 77
-      }
-    ]
-  }
-};
+  {
+    iso3: 'COD', name: 'DR Congo',
+    index_value: 79, latitude: -4.0, longitude: 21.76,
+    invisible_index: 9102, displaced_persons: 6900000, conflict_events: 22, article_count: 3,
+    category_scores: { war: 88, water: 78, famine: 82, disease: 88, climate: 60, tech: 22 },
+  },
+  {
+    iso3: 'SOM', name: 'Somalia',
+    index_value: 74, latitude: 5.15, longitude: 46.2,
+    invisible_index: 7880, displaced_persons: 3100000, conflict_events: 12, article_count: 4,
+    category_scores: { war: 78, water: 85, famine: 88, disease: 70, climate: 65, tech: 14 },
+  },
+  {
+    iso3: 'ETH', name: 'Ethiopia',
+    index_value: 70, latitude: 9.14, longitude: 40.49,
+    invisible_index: 6540, displaced_persons: 4200000, conflict_events: 8, article_count: 6,
+    category_scores: { war: 72, water: 80, famine: 85, disease: 75, climate: 68, tech: 25 },
+  },
+  {
+    iso3: 'MMR', name: 'Myanmar',
+    index_value: 65, latitude: 19.16, longitude: 96.63,
+    invisible_index: 5200, displaced_persons: 2000000, conflict_events: 20, article_count: 4,
+    category_scores: { war: 82, water: 60, famine: 70, disease: 62, climate: 55, tech: 30 },
+  },
+  {
+    iso3: 'SSD', name: 'South Sudan',
+    index_value: 62, latitude: 6.88, longitude: 31.31,
+    invisible_index: 4820, displaced_persons: 2200000, conflict_events: 11, article_count: 3,
+    category_scores: { war: 75, water: 88, famine: 80, disease: 70, climate: 58, tech: 10 },
+  },
+  {
+    iso3: 'YEM', name: 'Yemen',
+    index_value: 58, latitude: 15.55, longitude: 48.52,
+    invisible_index: 4210, displaced_persons: 4500000, conflict_events: 18, article_count: 12,
+    category_scores: { war: 55, water: 82, famine: 78, disease: 65, climate: 50, tech: 20 },
+  },
+  {
+    iso3: 'AFG', name: 'Afghanistan',
+    index_value: 52, latitude: 33.94, longitude: 67.71,
+    invisible_index: 3100, displaced_persons: 3500000, conflict_events: 16, article_count: 7,
+    category_scores: { war: 60, water: 75, famine: 72, disease: 60, climate: 55, tech: 18 },
+  },
+  {
+    iso3: 'HTI', name: 'Haiti',
+    index_value: 49, latitude: 18.97, longitude: -72.29,
+    invisible_index: 2900, displaced_persons: 600000, conflict_events: 9, article_count: 3,
+    category_scores: { war: 55, water: 78, famine: 70, disease: 72, climate: 80, tech: 15 },
+  },
+  {
+    iso3: 'MLI', name: 'Mali',
+    index_value: 46, latitude: 17.57, longitude: -3.99,
+    invisible_index: 2600, displaced_persons: 400000, conflict_events: 8, article_count: 2,
+    category_scores: { war: 65, water: 85, famine: 75, disease: 60, climate: 72, tech: 12 },
+  },
+  {
+    iso3: 'NER', name: 'Niger',
+    index_value: 44, latitude: 17.61, longitude: 8.08,
+    invisible_index: 2300, displaced_persons: 350000, conflict_events: 6, article_count: 2,
+    category_scores: { war: 55, water: 92, famine: 80, disease: 65, climate: 78, tech: 10 },
+  },
+  {
+    iso3: 'BFA', name: 'Burkina Faso',
+    index_value: 42, latitude: 12.36, longitude: -1.53,
+    invisible_index: 2100, displaced_persons: 1900000, conflict_events: 11, article_count: 3,
+    category_scores: { war: 68, water: 80, famine: 72, disease: 62, climate: 70, tech: 14 },
+  },
+  {
+    iso3: 'EGY', name: 'Egypt',
+    index_value: 25, latitude: 26.82, longitude: 30.80,
+    invisible_index: 900, displaced_persons: 200000, conflict_events: 3, article_count: 28,
+    category_scores: { war: 20, water: 88, famine: 35, disease: 30, climate: 55, tech: 40 },
+  },
+  {
+    iso3: 'PAK', name: 'Pakistan',
+    index_value: 42, latitude: 30.38, longitude: 69.35,
+    invisible_index: 2050, displaced_persons: 800000, conflict_events: 12, article_count: 14,
+    category_scores: { war: 45, water: 82, famine: 55, disease: 58, climate: 75, tech: 65 },
+  },
+  {
+    iso3: 'IND', name: 'India',
+    index_value: 16, latitude: 20.59, longitude: 78.96,
+    invisible_index: 420, displaced_persons: 500000, conflict_events: 6, article_count: 75,
+    category_scores: { war: 12, water: 70, famine: 30, disease: 35, climate: 60, tech: 8 },
+  },
+  {
+    iso3: 'BGD', name: 'Bangladesh',
+    index_value: 45, latitude: 23.68, longitude: 90.36,
+    invisible_index: 2200, displaced_persons: 700000, conflict_events: 4, article_count: 8,
+    category_scores: { war: 30, water: 78, famine: 60, disease: 55, climate: 92, tech: 35 },
+  },
+  {
+    iso3: 'PHL', name: 'Philippines',
+    index_value: 35, latitude: 12.88, longitude: 121.77,
+    invisible_index: 1500, displaced_persons: 300000, conflict_events: 5, article_count: 12,
+    category_scores: { war: 28, water: 55, famine: 40, disease: 45, climate: 88, tech: 30 },
+  },
+  {
+    iso3: 'MOZ', name: 'Mozambique',
+    index_value: 38, latitude: -18.67, longitude: 35.53,
+    invisible_index: 1900, displaced_persons: 800000, conflict_events: 5, article_count: 3,
+    category_scores: { war: 45, water: 75, famine: 65, disease: 60, climate: 85, tech: 15 },
+  },
+  {
+    iso3: 'SYR', name: 'Syria',
+    index_value: 35, latitude: 34.8, longitude: 38.99,
+    invisible_index: 1840, displaced_persons: 6600000, conflict_events: 11, article_count: 9,
+    category_scores: { war: 30, water: 65, famine: 55, disease: 40, climate: 35, tech: 22 },
+  },
+  {
+    iso3: 'IRQ', name: 'Iraq',
+    index_value: 30, latitude: 33.22, longitude: 43.68,
+    invisible_index: 950, displaced_persons: 1200000, conflict_events: 9, article_count: 12,
+    category_scores: { war: 28, water: 70, famine: 40, disease: 35, climate: 50, tech: 28 },
+  },
+  {
+    iso3: 'LBN', name: 'Lebanon',
+    index_value: 34, latitude: 33.85, longitude: 35.86,
+    invisible_index: 1600, displaced_persons: 1500000, conflict_events: 5, article_count: 14,
+    category_scores: { war: 30, water: 72, famine: 55, disease: 40, climate: 45, tech: 30 },
+  },
+  {
+    iso3: 'NGA', name: 'Nigeria',
+    index_value: 22, latitude: 9.08, longitude: 8.68,
+    invisible_index: 800, displaced_persons: 2100000, conflict_events: 14, article_count: 14,
+    category_scores: { war: 35, water: 65, famine: 55, disease: 70, climate: 60, tech: 35 },
+  },
+  {
+    iso3: 'ZWE', name: 'Zimbabwe',
+    index_value: 32, latitude: -19.02, longitude: 29.15,
+    invisible_index: 1600, displaced_persons: 200000, conflict_events: 2, article_count: 3,
+    category_scores: { war: 20, water: 72, famine: 65, disease: 55, climate: 60, tech: 20 },
+  },
+  {
+    iso3: 'CMR', name: 'Cameroon',
+    index_value: 30, latitude: 7.37, longitude: 12.35,
+    invisible_index: 1400, displaced_persons: 500000, conflict_events: 6, article_count: 3,
+    category_scores: { war: 45, water: 60, famine: 55, disease: 60, climate: 55, tech: 15 },
+  },
+  {
+    iso3: 'VEN', name: 'Venezuela',
+    index_value: 26, latitude: 6.42, longitude: -66.59,
+    invisible_index: 1100, displaced_persons: 5000000, conflict_events: 3, article_count: 8,
+    category_scores: { war: 22, water: 55, famine: 60, disease: 50, climate: 40, tech: 38 },
+  },
+  {
+    iso3: 'UKR', name: 'Ukraine',
+    index_value: 2, latitude: 48.38, longitude: 31.17,
+    invisible_index: 0.3, displaced_persons: 6000000, conflict_events: 40, article_count: 280,
+    category_scores: { war: 2, water: 15, famine: 8, disease: 5, climate: 10, tech: 12 },
+  },
+  {
+    iso3: 'RUS', name: 'Russia',
+    index_value: 8, latitude: 61.52, longitude: 105.32,
+    invisible_index: 180, displaced_persons: 0, conflict_events: 5, article_count: 120,
+    category_scores: { war: 5, water: 20, famine: 10, disease: 8, climate: 15, tech: 10 },
+  },
+  {
+    iso3: 'CHN', name: 'China',
+    index_value: 15, latitude: 35.86, longitude: 104.19,
+    invisible_index: 380, displaced_persons: 0, conflict_events: 2, article_count: 90,
+    category_scores: { war: 12, water: 35, famine: 18, disease: 20, climate: 30, tech: 5 },
+  },
+  {
+    iso3: 'USA', name: 'United States',
+    index_value: 5, latitude: 37.09, longitude: -95.71,
+    invisible_index: 80, displaced_persons: 0, conflict_events: 0, article_count: 200,
+    category_scores: { war: 3, water: 10, famine: 5, disease: 4, climate: 8, tech: 2 },
+  },
+  {
+    iso3: 'GBR', name: 'United Kingdom',
+    index_value: 4, latitude: 55.38, longitude: -3.44,
+    invisible_index: 60, displaced_persons: 0, conflict_events: 0, article_count: 180,
+    category_scores: { war: 3, water: 8, famine: 4, disease: 3, climate: 6, tech: 3 },
+  },
+  {
+    iso3: 'DEU', name: 'Germany',
+    index_value: 3, latitude: 51.17, longitude: 10.45,
+    invisible_index: 40, displaced_persons: 0, conflict_events: 0, article_count: 160,
+    category_scores: { war: 2, water: 7, famine: 3, disease: 3, climate: 5, tech: 3 },
+  },
+  {
+    iso3: 'FRA', name: 'France',
+    index_value: 4, latitude: 46.23, longitude: 2.21,
+    invisible_index: 55, displaced_persons: 0, conflict_events: 0, article_count: 150,
+    category_scores: { war: 3, water: 8, famine: 4, disease: 3, climate: 6, tech: 4 },
+  },
+  {
+    iso3: 'ISR', name: 'Israel',
+    index_value: 6, latitude: 31.05, longitude: 34.85,
+    invisible_index: 100, displaced_persons: 200000, conflict_events: 18, article_count: 160,
+    category_scores: { war: 4, water: 25, famine: 10, disease: 6, climate: 15, tech: 5 },
+  },
+  {
+    iso3: 'PSE', name: 'Palestine',
+    index_value: 10, latitude: 31.95, longitude: 35.23,
+    invisible_index: 2, displaced_persons: 1900000, conflict_events: 55, article_count: 190,
+    category_scores: { war: 8, water: 40, famine: 35, disease: 20, climate: 25, tech: 18 },
+  },
+  {
+    iso3: 'TUR', name: 'Turkey',
+    index_value: 20, latitude: 38.96, longitude: 35.24,
+    invisible_index: 650, displaced_persons: 3600000, conflict_events: 4, article_count: 18,
+    category_scores: { war: 18, water: 45, famine: 25, disease: 20, climate: 40, tech: 22 },
+  },
+  {
+    iso3: 'IRN', name: 'Iran',
+    index_value: 38, latitude: 32.43, longitude: 53.69,
+    invisible_index: 1750, displaced_persons: 0, conflict_events: 4, article_count: 14,
+    category_scores: { war: 35, water: 70, famine: 40, disease: 35, climate: 55, tech: 30 },
+  },
+  {
+    iso3: 'SAU', name: 'Saudi Arabia',
+    index_value: 20, latitude: 23.89, longitude: 45.08,
+    invisible_index: 650, displaced_persons: 0, conflict_events: 2, article_count: 42,
+    category_scores: { war: 15, water: 60, famine: 18, disease: 15, climate: 45, tech: 15 },
+  },
+  {
+    iso3: 'BRA', name: 'Brazil',
+    index_value: 18, latitude: -14.24, longitude: -51.93,
+    invisible_index: 520, displaced_persons: 100000, conflict_events: 2, article_count: 60,
+    category_scores: { war: 10, water: 30, famine: 22, disease: 28, climate: 55, tech: 18 },
+  },
+  {
+    iso3: 'MEX', name: 'Mexico',
+    index_value: 22, latitude: 23.63, longitude: -102.55,
+    invisible_index: 720, displaced_persons: 350000, conflict_events: 8, article_count: 55,
+    category_scores: { war: 28, water: 50, famine: 30, disease: 25, climate: 45, tech: 20 },
+  },
+  {
+    iso3: 'ZAF', name: 'South Africa',
+    index_value: 14, latitude: -30.56, longitude: 22.94,
+    invisible_index: 340, displaced_persons: 50000, conflict_events: 1, article_count: 32,
+    category_scores: { war: 10, water: 55, famine: 30, disease: 35, climate: 50, tech: 22 },
+  },
+  {
+    iso3: 'KEN', name: 'Kenya',
+    index_value: 22, latitude: -0.02, longitude: 37.91,
+    invisible_index: 700, displaced_persons: 200000, conflict_events: 3, article_count: 9,
+    category_scores: { war: 18, water: 68, famine: 50, disease: 55, climate: 65, tech: 28 },
+  },
+  {
+    iso3: 'AUS', name: 'Australia',
+    index_value: 2, latitude: -25.27, longitude: 133.78,
+    invisible_index: 30, displaced_persons: 0, conflict_events: 0, article_count: 110,
+    category_scores: { war: 2, water: 12, famine: 3, disease: 3, climate: 8, tech: 4 },
+  },
+  {
+    iso3: 'JPN', name: 'Japan',
+    index_value: 3, latitude: 36.20, longitude: 138.25,
+    invisible_index: 42, displaced_persons: 0, conflict_events: 0, article_count: 120,
+    category_scores: { war: 2, water: 8, famine: 3, disease: 5, climate: 10, tech: 3 },
+  },
+  {
+    iso3: 'KOR', name: 'South Korea',
+    index_value: 4, latitude: 35.91, longitude: 127.77,
+    invisible_index: 55, displaced_persons: 0, conflict_events: 0, article_count: 90,
+    category_scores: { war: 3, water: 10, famine: 4, disease: 4, climate: 8, tech: 4 },
+  },
+  {
+    iso3: 'IDN', name: 'Indonesia',
+    index_value: 30, latitude: -0.79, longitude: 113.92,
+    invisible_index: 1200, displaced_persons: 200000, conflict_events: 3, article_count: 18,
+    category_scores: { war: 18, water: 55, famine: 35, disease: 45, climate: 75, tech: 30 },
+  },
+  {
+    iso3: 'POL', name: 'Poland',
+    index_value: 5, latitude: 51.92, longitude: 19.15,
+    invisible_index: 72, displaced_persons: 1000000, conflict_events: 0, article_count: 80,
+    category_scores: { war: 4, water: 12, famine: 5, disease: 4, climate: 10, tech: 5 },
+  },
+];
 
-// Alerts
+// ─── ALERTS ──────────────────────────────────────────────────────────────────
 export const mockAlerts = [
   {
-    country_iso3: 'UKR',
-    country_name: 'Ukraine',
-    message: 'Critical spike detected: +15.2 points in 24h - Coordinated disinformation campaign',
-    timestamp: new Date().toISOString(),
-    severity: 'critical'
+    country_iso3: 'SDN',
+    country_name: 'Sudan',
+    message: 'Critical spike detected: Invisible Index surged to 18,910 (+10,710 in last cycle)',
+    timestamp: new Date(Date.now() - 12 * 60 * 1000).toISOString(),
+    severity: 'critical',
   },
   {
-    country_iso3: 'SYR',
-    country_name: 'Syria',
-    message: 'Sustained high index: 85+ for 72 hours',
-    timestamp: new Date(Date.now() - 3600000).toISOString(),
-    severity: 'high'
-  }
+    country_iso3: 'AGO',
+    country_name: 'Angola',
+    message: 'Severe underreporting: 7.3M people in crisis, only 2 articles published this cycle',
+    timestamp: new Date(Date.now() - 45 * 60 * 1000).toISOString(),
+    severity: 'high',
+  },
 ];
 
-// Intelligence brief templates
+// ─── BRIEFS ──────────────────────────────────────────────────────────────────
 export const mockBriefs = {
-  'USA': 'Current integrity assessment shows moderate elevation in misinformation metrics across social media platforms. Primary vectors include political content amplification and coordinated inauthentic behavior. Recent spike of +2.3 points correlates with increased election-related content. Regional variations noted with higher concentrations in swing states. Bot activity at 42% of baseline, with particular focus on divisive political narratives. Fact-checking organizations report 3x normal volume. Recommend continued monitoring of emerging narratives around upcoming policy decisions and electoral processes.',
-  
-  'CHN': 'Elevated index reflects state-controlled information environment with extensive content filtering and narrative management. Score remains stable at 71.6 with minimal 24h variation (-0.5). Recent activity correlates with economic policy announcements and international relations developments. Limited independent verification channels make ground truth assessment challenging. Source diversity remains critically low at 31%. Coordinated state media messaging shows high synchronization across platforms. VPN and circumvention tool usage indicates citizen attempts to access alternative information sources.',
-  
-  'UKR': 'CRITICAL ALERT: Unprecedented spike of +15.2 points in 24 hours indicates major information warfare escalation. Multi-vector disinformation campaign detected across domestic and international channels. Attribution analysis suggests coordinated state-actor involvement with bot network amplification at 91% of traffic. Primary attack vectors include deepfake videos targeting officials, false aid narratives, and coordinated narrative manipulation. Independent fact-checkers overwhelmed by volume. Immediate escalation to priority monitoring recommended. International support messaging provides partial counter-narrative resilience.',
-  
-  'GBR': 'Moderate integrity metrics with stable trend (+0.8 points). Diverse media landscape provides resilience against coordinated campaigns with source diversity at 85%. Recent concerns include isolated deepfake incidents and synthetic media in political discourse, though overall ecosystem remains robust. Fact-check ratio of 72% indicates healthy information verification culture. Regulatory frameworks (Ofcom) provide oversight mechanism. Public trust surveys show declining confidence in social media news, potentially indicating increased media literacy. Overall information environment maintains moderate risk profile.',
-  
-  'RUS': 'Elevated index at 73.2 reflects state-controlled information architecture with extensive content moderation and source restrictions. Trend stable with minimal variation. Independent media space continues to contract under regulatory pressure. Source diversity critically low at 28%, indicating limited alternative viewpoints in mainstream discourse. VPN usage surge suggests population actively seeking external information sources. Bot activity elevated at 71% across monitored platforms. State media coordination shows high narrative synchronization. Limited independent fact-checking infrastructure operational.',
-  
-  'default': 'Intelligence brief generated based on latest integrity metrics. Current assessment indicates {severity} risk environment with index value of {index}. Monitoring continues across digital platforms, traditional media, and grassroots information networks. Trend analysis shows {trend} pattern over 24-hour period. Primary risk vectors include coordinated inauthentic behavior, narrative manipulation, and source credibility challenges. Recommend standard vigilance protocols with enhanced monitoring during high-risk events.'
+  SDN: 'Sudan has over 10.8 million displaced people amid a brutal civil war between the Sudanese Armed Forces and the Rapid Support Forces, creating the world\'s largest displacement crisis with mass famine spreading across Darfur and Khartoum state. The conflict has received a fraction of the media coverage given to other wars of comparable scale, partly because journalists face extreme access restrictions and partly because the story began without a clear geopolitical villain recognizable to Western audiences. Sustained diplomatic pressure on both warring factions, emergency food corridor guarantees, and a dedicated international media presence in Port Sudan would be the most direct interventions.',
+  AGO: 'Angola has 7.3 million people requiring humanitarian assistance, with protracted conflict in Cabinda and severe food insecurity affecting southern provinces following two consecutive years of drought. The crisis receives virtually no international coverage because Angola lacks the geopolitical salience of conflicts involving major powers, and because its government actively restricts independent journalism. Redirecting a fraction of the humanitarian funding currently flowing to higher-profile crises, combined with pressure on Luanda to allow international press access, would have an outsized impact.',
+  TCD: 'Chad is experiencing simultaneous crises — hosting over 1.1 million refugees from Sudan and the Central African Republic while enduring its own internal displacement from Lake Chad Basin conflicts and recurring Sahel droughts. The country receives almost no sustained international media attention despite being one of the most complex humanitarian emergencies on Earth. Emergency food assistance, water infrastructure investment, and refugee camp expansion are the most urgent needs.',
+  UKR: 'Ukraine continues to experience active conflict with Russia following the 2022 invasion, with millions displaced internally and internationally and ongoing infrastructure destruction. The conflict receives extensive international media coverage, placing it at the low end of the Invisible Index — attention is broadly proportional to the crisis. Continued international military and humanitarian support and reconstruction financing remain the primary interventions.',
+  default: 'This country is experiencing a {severity} humanitarian situation that is receiving less international attention than the scale of suffering warrants. The gap between the level of crisis and the level of media coverage represents a systematic failure of the global information ecosystem to allocate attention proportionally to need. Increased international journalism, sustained diplomatic attention, and emergency humanitarian funding are the most direct interventions available.',
+};
+
+// ─── COUNTRY DETAILS ─────────────────────────────────────────────────────────
+export const mockCountryDetails = {
+  SDN: {
+    iso3: 'SDN', trend: 'up', change_24h: 12.4,
+    last_updated: new Date().toISOString(),
+    metrics: { misinformation_score: 82, bot_activity: 45, fact_check_ratio: 8, source_diversity: 12 },
+    trending_topics: [
+      { topic: 'Darfur famine',        volume: 1240, sentiment: 'negative' },
+      { topic: 'RSF conflict',         volume: 890,  sentiment: 'negative' },
+      { topic: 'Khartoum displacement',volume: 650,  sentiment: 'negative' },
+    ],
+    news_articles: [
+      { id: 1, title: "Sudan's hidden famine: millions starving as world looks away", source: 'Reuters',       url: '#', published: new Date(Date.now() - 2*3600000).toISOString(),  summary: 'Aid agencies warn of catastrophic food insecurity spreading from Darfur to Khartoum state as supply routes remain blocked.', credibility: 'verified', impact_score: 87 },
+      { id: 2, title: 'UN: Sudan displacement now largest crisis in the world',        source: 'Al Jazeera',   url: '#', published: new Date(Date.now() - 6*3600000).toISOString(),  summary: 'UNHCR confirms 10.8 million internally displaced, surpassing Ukraine as the largest displacement emergency globally.', credibility: 'verified', impact_score: 92 },
+    ],
+  },
+  AGO: {
+    iso3: 'AGO', trend: 'up', change_24h: 8.2,
+    last_updated: new Date().toISOString(),
+    metrics: { misinformation_score: 55, bot_activity: 28, fact_check_ratio: 14, source_diversity: 18 },
+    trending_topics: [
+      { topic: 'Southern drought',          volume: 340, sentiment: 'negative' },
+      { topic: 'Humanitarian aid access',   volume: 210, sentiment: 'negative' },
+    ],
+    news_articles: [
+      { id: 1, title: 'Angola drought: 7 million need aid but media stays silent', source: 'MSF', url: '#', published: new Date(Date.now() - 8*3600000).toISOString(), summary: 'Médecins Sans Frontières reports acute malnutrition rates exceeding emergency thresholds in southern Angola provinces.', credibility: 'verified', impact_score: 78 },
+    ],
+  },
+  UKR: {
+    iso3: 'UKR', trend: 'down', change_24h: -1.2,
+    last_updated: new Date().toISOString(),
+    metrics: { misinformation_score: 72, bot_activity: 88, fact_check_ratio: 65, source_diversity: 78 },
+    trending_topics: [
+      { topic: 'Frontline advances',      volume: 45000, sentiment: 'negative' },
+      { topic: 'Western military aid',    volume: 38000, sentiment: 'mixed'    },
+      { topic: 'Ceasefire negotiations',  volume: 22000, sentiment: 'neutral'  },
+    ],
+    news_articles: [
+      { id: 1, title: 'Ukraine front line shifts as Russia advances in Donetsk', source: 'BBC', url: '#', published: new Date(Date.now() - 3600000).toISOString(), summary: 'Russian forces have made incremental gains in eastern Ukraine while Ukrainian forces hold defensive positions.', credibility: 'verified', impact_score: 94 },
+    ],
+  },
 };
