@@ -27,7 +27,6 @@ const CENTERS = {
   ZAF:[25,-29],NGA:[8,10],GHA:[-1,8],CIV:[-5,8],SEN:[-14,14],MLI:[-2,17],
   NER:[8,17],CMR:[12,4],COD:[24,-4],AGO:[18,-12],SSD:[31,7],CAF:[20,7],
   TCD:[18,15],BFA:[-1,12],AUS:[133,-27],NZL:[174,-41],PSE:[35,31],
-  COL:[-74,4],ARG:[-64,-34],
 };
 
 // Minimal — just a small pulsing dot

@@ -86,6 +86,17 @@ export const mockAlerts = [
   { country_iso3:'CAF', country_name:'Central African Republic', message:'Human rights violations in CAR go unreported — Invisible Index surged this week', timestamp: new Date(Date.now()-60*60000).toISOString() },
 ];
 
+// Used by hooks in mock mode. Keep these lightweight; the hooks
+// already synthesize reasonable defaults for missing countries.
+export const mockCountryDetails = {};
+
+export const mockBriefs = {
+  SDN: 'Sudan faces severe instability with limited sustained international coverage. Information gaps and access restrictions reduce visibility into fast-moving humanitarian impacts. Increased support for independent reporting and aid logistics would improve situational awareness.',
+  AGO: 'Angola’s risk profile is shaped by regional pressures and uneven media attention to localized crises. Gaps in reporting can delay response to emerging issues. Strengthening early-warning monitoring and local partnerships would improve resilience.',
+  default:
+    'This country is currently assessed as {severity} risk for information integrity and coverage gaps. Monitoring suggests limited visibility into key developments relative to impact. Continued verification, local sourcing, and timely fact-checking would improve the response.',
+};
+
 export const mockSummaries = {
   SDN: {
     'Armed Conflict & Violence': { summary: 'Sudan is experiencing one of the world\'s most severe humanitarian crises, with over 10 million people displaced by ongoing civil war between the Sudanese Armed Forces and the Rapid Support Forces. The conflict, which began in April 2023, has created the world\'s largest displacement emergency, with mass atrocities reported in Darfur and supply routes to famine-stricken areas deliberately blocked.', links: ['https://www.theguardian.com/world/sudan','https://www.bbc.com/news/topics/c302m85q2xpt','https://apnews.com/hub/sudan'] },

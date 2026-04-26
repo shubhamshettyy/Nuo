@@ -6,6 +6,7 @@ const USE_MOCK_DATA = import.meta.env.VITE_USE_MOCK_DATA === 'true';
 
 export function useCountryDetails() {
   const [details, setDetails] = useState(null);
+  const [articles, setArticles] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
@@ -24,11 +25,16 @@ export function useCountryDetails() {
       
       if (countryDetails) {
         setDetails(countryDetails);
+        // Sort articles by impact_score descending
+        const sortedArticles = (countryDetails.news_articles || []).sort((a, b) => 
+          b.impact_score - a.impact_score
+        );
+        setArticles(sortedArticles);
       } else {
         // Generate default details for countries without specific data
         const basicCountry = {
           iso3,
-          name: iso3, // Will be overridden by actual name from country list
+          name: iso3,
           index_value: Math.random() * 100,
           trend: Math.random() > 0.5 ? 'up' : 'down',
           change_24h: (Math.random() - 0.5) * 10,
@@ -43,25 +49,52 @@ export function useCountryDetails() {
           news_articles: []
         };
         setDetails(basicCountry);
+        setArticles([]);
       }
       
       setLoading(false);
       return;
     }
 
-    // Otherwise fetch from API
+    // Fetch from real backend API
     try {
-      const response = await fetch(`${API_BASE_URL}/api/country/${iso3}/details`);
+      // Fetch both details and articles in parallel
+      const [detailsResponse, articlesResponse] = await Promise.all([
+        fetch(`${API_BASE_URL}/api/country/${iso3}/details`),
+        fetch(`${API_BASE_URL}/api/country/${iso3}/articles`)
+      ]);
 
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+      if (!detailsResponse.ok) {
+        throw new Error(`Failed to fetch details: ${detailsResponse.status}`);
       }
 
-      const data = await response.json();
-      setDetails(data);
+      if (!articlesResponse.ok) {
+        throw new Error(`Failed to fetch articles: ${articlesResponse.status}`);
+      }
+
+      const detailsData = await detailsResponse.json();
+      const articlesData = await articlesResponse.json();
+
+      console.log(`[useCountryDetails] Loaded ${iso3}:`, {
+        index: detailsData.index_value,
+        total_articles: articlesData.total_articles,
+        categories: articlesData.categories_with_articles?.length || 0
+      });
+
+      setDetails(detailsData);
+      
+      // Sort articles by impact_score descending (highest impact first)
+      const sortedArticles = (articlesData.articles || []).sort((a, b) => 
+        b.impact_score - a.impact_score
+      );
+      
+      setArticles(sortedArticles);
+
     } catch (err) {
+      console.error(`[useCountryDetails] Error for ${iso3}:`, err);
       setError(err.message);
       setDetails(null);
+      setArticles([]);
     } finally {
       setLoading(false);
     }
@@ -69,8 +102,9 @@ export function useCountryDetails() {
 
   const clearDetails = useCallback(() => {
     setDetails(null);
+    setArticles([]);
     setError(null);
   }, []);
 
-  return { details, loading, error, fetchDetails, clearDetails };
+  return { details, articles, loading, error, fetchDetails, clearDetails };
 }

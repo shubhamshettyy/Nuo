@@ -20,7 +20,7 @@ async def get_globe():
     print(f"[Globe] Returned {len(result.get('countries', []))} countries")
     if result.get('countries'):
         sample = result['countries'][0]
-        print(f"[Globe] Sample country: {sample}")
+        print(f"[Globe] Sample country: {sample.get('name')} - Index: {sample.get('index_value')}")
     
     return result
 
@@ -45,8 +45,79 @@ async def get_country_details(iso3: str):
     if not details:
         raise HTTPException(status_code=404, detail=f"Country details for {iso3} not found")
     
-    print(f"[Globe] Retrieved details for {iso3}: index={details.get('index_value')}")
+    print(f"[Globe] Retrieved details for {iso3}: index={details.get('index_value')}, articles={len(details.get('news_articles', []))}")
     return details
+
+
+@router.get("/country/{iso3}/articles")
+async def get_country_articles(iso3: str):
+    """
+    Get ALL articles for a country across all categories.
+    This is what the sidebar will use to display news.
+    """
+    country_name = ISO3_TO_NAME.get(iso3.upper())
+    
+    if not country_name:
+        raise HTTPException(status_code=404, detail=f"Country {iso3} not found in mapping")
+    
+    # Get all category data
+    categories = await mongo.get_country_news(country_name)
+    
+    if not categories:
+        return {
+            "iso3": iso3.upper(),
+            "country": country_name,
+            "total_articles": 0,
+            "articles": [],
+            "categories_with_articles": []
+        }
+    
+    # Extract all articles from all categories
+    all_articles = []
+    article_id = 1
+    categories_with_articles = []
+    
+    for cat in categories:
+        articles = cat.get("articles", [])
+        if not articles:
+            continue
+            
+        categories_with_articles.append({
+            "category": cat["category"],
+            "article_count": len(articles),
+            "final_score": cat.get("final_score", 0),
+            "summary": cat.get("summary", ""),
+        })
+        
+        for article in articles:
+            # Skip if no title
+            if not article.get("title"):
+                continue
+                
+            all_articles.append({
+                "id": article_id,
+                "title": article.get("title", ""),
+                "url": article.get("url", ""),
+                "content": article.get("content", ""),
+                "category": cat["category"],
+                "published": cat.get("updated_at", ""),
+                "credibility": "verified",
+                "impact_score": round(cat.get("final_score", 0)),
+            })
+            article_id += 1
+    
+    # Sort by impact score (highest first)
+    all_articles.sort(key=lambda x: x["impact_score"], reverse=True)
+    
+    print(f"[Globe] Retrieved {len(all_articles)} articles for {country_name} ({iso3}) across {len(categories_with_articles)} categories")
+    
+    return {
+        "iso3": iso3.upper(),
+        "country": country_name,
+        "total_articles": len(all_articles),
+        "articles": all_articles,
+        "categories_with_articles": categories_with_articles,
+    }
 
 
 @router.get("/country/{iso3}/agent-news")

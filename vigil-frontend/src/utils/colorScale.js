@@ -25,3 +25,27 @@ export const getIndexColor = (val) => {
   if (val < 80)  return '#e74c3c';
   return '#c0392b';
 };
+
+export const formatIndex = (val) => {
+  if (val == null || Number.isNaN(Number(val))) return '--';
+  const n = Number(val);
+  return Number.isInteger(n) ? String(n) : n.toFixed(1);
+};
+
+export const getSeverityLabel = (val) => {
+  if (val == null) return 'No data';
+  const n = Number(val);
+  if (n < 25) return 'Low';
+  if (n < 50) return 'Moderate';
+  if (n < 75) return 'Elevated';
+  return 'Critical';
+};
+
+export const getIndexTextColor = (val) => {
+  if (val == null) return '#9ca3af';
+  const n = Number(val);
+  if (n < 25) return '#10b981';
+  if (n < 50) return '#84cc16';
+  if (n < 75) return '#fbbf24';
+  return '#ef4444';
+};

@@ -1,182 +1,160 @@
-import React, { useEffect, useState, useCallback } from 'react';
-import { getIndexLabel, getIndexColor } from '../utils/colorScale';
-import { CATEGORIES, CATEGORY_COLORS, mockSummaries } from '../data/mockData';
-import { useLang } from '../i18n/LanguageContext';
-import { useTranslateSummary } from '../hooks/useTranslateSummary';
+import React, { useEffect, useState } from 'react';
 import './CountryPanel.css';
 
-const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
-const USE_MOCK = import.meta.env.VITE_USE_MOCK_DATA === 'true';
+const CATEGORIES = [
+  'Scientific Breakthroughs',
+  'Environmental Restoration',
+  'Social Progress',
+  'Public Health Crises',
+  'Armed Conflict & Violence',
+  'Human Rights Violations'
+];
 
-async function fetchCategoryData(iso3, category) {
-  if (USE_MOCK) {
-    await new Promise(r => setTimeout(r, 500));
-    const cd = mockSummaries[iso3];
-    if (cd && category !== 'all' && cd[category]) return cd[category];
-    if (category === 'all' && cd) return Object.values(cd)[0] || mockSummaries.default;
-    return mockSummaries.default;
-  }
-  try {
-    const params = category !== 'all' ? `?category=${encodeURIComponent(category)}` : '';
-    const res = await fetch(`${API_BASE}/api/pivot/country/${iso3}/summary${params}`);
-    if (!res.ok) throw new Error(`${res.status}`);
-    const data = await res.json();
-    return {
-      summary:  data.summary  || '',
-      links:    data.links    || [],
-      articles: data.articles || [],
-      category: data.category || category,
-    };
-  } catch {
-    return { summary: '', links: [], articles: [], category };
-  }
-}
+export default function CountryPanel({ country, details, articles, loading, onClose }) {
+  const [activeCategory, setActiveCategory] = useState(CATEGORIES[0]);
 
-const ALL_CATS = CATEGORIES.filter(c => c.id !== 'all');
+  if (!country) return null;
 
-export default function CountryPanel({ country, activeCategory, onClose }) {
-  const { lang, current } = useLang();
-  const { translate, translating } = useTranslateSummary();
+  // Group articles by category
+  const articlesByCategory = {};
+  CATEGORIES.forEach(cat => {
+    articlesByCategory[cat] = articles?.filter(a => a.category === cat) || [];
+  });
 
-  const [selCat, setSelCat]           = useState(activeCategory !== 'all' ? activeCategory : ALL_CATS[0]?.id);
-  const [rawData, setRawData]         = useState(null);
-  const [displaySummary, setDisplaySummary] = useState('');
-  const [loading, setLoading]         = useState(false);
+  // Get score for active category (from details or calculate from articles)
+  const getCategoryScore = (category) => {
+    const categoryArticles = articlesByCategory[category];
+    if (!categoryArticles.length) return 0;
+    
+    // Average impact score of all articles in this category
+    const avgImpact = categoryArticles.reduce((sum, a) => sum + (a.impact_score || 0), 0) / categoryArticles.length;
+    return Math.round(avgImpact);
+  };
 
-  // Load data from API
-  const load = useCallback(async (cat) => {
-    setLoading(true);
-    setRawData(null);
-    setDisplaySummary('');
-    const result = await fetchCategoryData(country.iso3, cat);
-    setRawData(result);
-    setLoading(false);
-  }, [country.iso3]);
-
-  useEffect(() => {
-    const cat = activeCategory !== 'all' ? activeCategory : ALL_CATS[0]?.id || 'all';
-    setSelCat(cat);
-    load(cat);
-  }, [country.iso3, activeCategory, load]);
-
-  // Translate summary whenever rawData or language changes
-  useEffect(() => {
-    if (!rawData?.summary) { setDisplaySummary(''); return; }
-    if (lang === 'en') { setDisplaySummary(rawData.summary); return; }
-
-    setDisplaySummary(''); // clear while translating
-    translate(rawData.summary, lang, current.name).then(setDisplaySummary);
-  }, [rawData, lang, current.name, translate]);
-
-  function switchCat(cat) {
-    setSelCat(cat);
-    load(cat);
-  }
-
-  const catColor = CATEGORY_COLORS[selCat] || '#555';
-  const catLabel = CATEGORIES.find(c => c.id === selCat)?.label || selCat;
-  const gapLabel = getIndexLabel(country.index_value);
-  const gapColor = getIndexColor(country.index_value);
-
-  const articles = (rawData?.articles || []).filter(a => a.title || a.headline);
-  const links    = [
-    ...(rawData?.links || []),
-    ...(rawData?.articles || []).map(a => a.url || a.link).filter(Boolean),
-  ].filter(Boolean).slice(0, 8);
-
-  const isTranslating = translating && lang !== 'en';
+  const activeScore = getCategoryScore(activeCategory);
+  const activeArticles = articlesByCategory[activeCategory] || [];
 
   return (
-    <div className="panel">
-      <div className="p-head">
-        <div className="p-head-top">
-          <div className="p-country">{country.name}</div>
-          <button className="p-close" onClick={onClose}>×</button>
+    <div className="country-panel">
+      {/* Header */}
+      <div className="panel-header">
+        <div>
+          <h2>{country.name}</h2>
+          <p className="country-code">{country.iso3}</p>
         </div>
-        <div className="p-meta">
-          <span
-            className="p-cat-tag"
-            style={{ background: catColor + '18', color: catColor, border: `1px solid ${catColor}30` }}
-          >
-            {catLabel}
-          </span>
-          <span className="p-gap-label" style={{ color: gapColor }}>{gapLabel}</span>
-        </div>
+        <button className="close-button" onClick={onClose}>×</button>
       </div>
 
-      <div className="p-body">
-        {/* Category tabs */}
-        <div className="p-cat-tabs">
-          {ALL_CATS.map(cat => (
+      {/* Category Tabs */}
+      <div className="category-tabs">
+        {CATEGORIES.map(cat => {
+          const count = articlesByCategory[cat]?.length || 0;
+          const score = getCategoryScore(cat);
+          return (
             <button
-              key={cat.id}
-              className={`p-cat-tab${selCat === cat.id ? ' on' : ''}`}
-              onClick={() => switchCat(cat.id)}
+              key={cat}
+              className={`cat-tab ${activeCategory === cat ? 'active' : ''}`}
+              onClick={() => setActiveCategory(cat)}
             >
-              {cat.label}
+              <div className="cat-tab-label">{cat}</div>
+              <div className="cat-tab-meta">
+                <span className="cat-tab-count">{count}</span>
+                {score > 0 && (
+                  <span 
+                    className="cat-tab-score"
+                    style={{
+                      color: score > 70 ? '#ef4444' : score > 40 ? '#fbbf24' : '#10b981'
+                    }}
+                  >
+                    {score}
+                  </span>
+                )}
+              </div>
             </button>
-          ))}
-        </div>
+          );
+        })}
+      </div>
 
-        {/* Summary */}
-        <div>
-          <div className="sec-label" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            <span>Coverage Summary</span>
-            {lang !== 'en' && (
-              <span style={{ fontSize: 9, color: 'var(--text3)', fontWeight: 400, letterSpacing: 0 }}>
-                {isTranslating ? '↻ Translating...' : `Translated · ${current.nativeName}`}
-              </span>
+      {/* Content */}
+      <div className="panel-content">
+        {loading ? (
+          <div className="panel-loading">
+            <div className="spinner"></div>
+            <p>Loading details...</p>
+          </div>
+        ) : (
+          <>
+            {/* Category Score Display */}
+            <div className="category-score-display">
+              <div className="score-label">Category Score</div>
+              <div 
+                className="score-value"
+                style={{
+                  color: activeScore > 70 ? '#ef4444' : 
+                         activeScore > 40 ? '#fbbf24' : 
+                         activeScore > 0 ? '#10b981' : '#64748b'
+                }}
+              >
+                {activeScore > 0 ? activeScore : 'N/A'}
+              </div>
+              <div className="score-sublabel">
+                Based on {activeArticles.length} article{activeArticles.length !== 1 ? 's' : ''}
+              </div>
+            </div>
+
+            {/* Articles List */}
+            {activeArticles.length > 0 ? (
+              <div className="articles-section">
+                <h3>Articles</h3>
+                <div className="articles-list">
+                  {activeArticles.map((article, idx) => (
+                    <div key={article.id || idx} className="article-card">
+                      <div className="article-header">
+                        <h4 className="article-title">{article.title}</h4>
+                        <div className="article-impact-badge">
+                          {article.impact_score}
+                        </div>
+                      </div>
+                      
+                      {article.content && (
+                        <p className="article-summary">
+                          {article.content.substring(0, 180)}...
+                        </p>
+                      )}
+                      
+                      <div className="article-footer">
+                        <span className="article-date">
+                          {new Date(article.published).toLocaleDateString('en-US', {
+                            month: 'short',
+                            day: 'numeric',
+                            year: 'numeric'
+                          })}
+                        </span>
+                        {article.url && (
+                          <a 
+                            href={article.url} 
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                            className="article-link"
+                          >
+                            Read full article →
+                          </a>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ) : (
+              <div className="empty-state">
+                <div className="empty-icon">📄</div>
+                <div className="empty-title">No articles found</div>
+                <div className="empty-text">
+                  No coverage available for {activeCategory} in {country.name}
+                </div>
+              </div>
             )}
-          </div>
-          {loading || isTranslating ? (
-            <div className="p-summary-loading">
-              <div className="spinner" />
-              {loading ? 'Loading report...' : `Translating to ${current.name}...`}
-            </div>
-          ) : (
-            <p className="p-summary" dir={current.rtl ? 'rtl' : 'ltr'}>
-              {displaySummary || 'No summary available for this category.'}
-            </p>
-          )}
-        </div>
-
-        {/* Article links */}
-        {!loading && (articles.length > 0 || links.length > 0) && (
-          <div>
-            <div className="sec-label">Source Articles</div>
-            <div className="articles-list">
-              {articles.length > 0
-                ? articles.map((a, i) => (
-                    <a key={i} className="article-link"
-                      href={a.url || a.link || '#'} target="_blank" rel="noreferrer">
-                      <div className="article-headline">{a.title || a.headline}</div>
-                      <div className="article-meta-row">
-                        {a.source && <span className="article-source">{a.source}</span>}
-                        <span className="article-arrow">↗</span>
-                      </div>
-                    </a>
-                  ))
-                : links.map((url, i) => (
-                    <a key={i} className="article-link"
-                      href={url} target="_blank" rel="noreferrer">
-                      <div className="article-headline">
-                        {url.replace(/^https?:\/\/(www\.)?/, '').split('/')[0]}
-                      </div>
-                      <div className="article-meta-row">
-                        <span className="article-arrow">↗</span>
-                      </div>
-                    </a>
-                  ))
-              }
-            </div>
-          </div>
-        )}
-
-        {/* Translation tip for articles */}
-        {lang !== 'en' && (
-          <div className="translate-tip">
-            <strong>Articles open in English.</strong> Your browser can translate them — in Chrome, right-click and select "Translate to {current.name}".
-          </div>
+          </>
         )}
       </div>
     </div>
