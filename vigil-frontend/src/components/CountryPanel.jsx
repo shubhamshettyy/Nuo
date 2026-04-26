@@ -1,222 +1,183 @@
-import React, { useEffect, useMemo, useState } from 'react';
-import { getSeverityLabel, getIndexTextColor } from '../utils/colorScale';
-import { usePivotCountry } from '../hooks/usePivotCountry';
+import React, { useEffect, useState, useCallback } from 'react';
+import { getIndexLabel, getIndexColor } from '../utils/colorScale';
+import { CATEGORIES, CATEGORY_COLORS, mockSummaries } from '../data/mockData';
+import { useLang } from '../i18n/LanguageContext';
+import { useTranslateSummary } from '../hooks/useTranslateSummary';
 import './CountryPanel.css';
 
-function buildBrief(country, summary, selCat) {
-  if (!summary) return '';
-  const score = Math.round(summary.overall_score || 0);
-  const top   = summary.category_scores?.[0];
-  const cat   = (selCat || top?.category || 'general').replaceAll('_', ' ');
-  const level = score >= 75 ? 'Critical' : score >= 55 ? 'Elevated' : 'Moderate';
-  return (
-    `${country.name} assessment: ${level} risk posture, composite score ${score}. ` +
-    `Active monitoring across ${cat} channels. ` +
-    `${summary.article_count_total} articles analyzed — ` +
-    `highest concentration in ${top?.category?.replaceAll('_', ' ') || 'general media'}. ` +
-    `Recommend sustained watch for narrative amplification and cross-platform propagation.`
-  );
+const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
+const USE_MOCK = import.meta.env.VITE_USE_MOCK_DATA === 'true';
+
+async function fetchCategoryData(iso3, category) {
+  if (USE_MOCK) {
+    await new Promise(r => setTimeout(r, 500));
+    const cd = mockSummaries[iso3];
+    if (cd && category !== 'all' && cd[category]) return cd[category];
+    if (category === 'all' && cd) return Object.values(cd)[0] || mockSummaries.default;
+    return mockSummaries.default;
+  }
+  try {
+    const params = category !== 'all' ? `?category=${encodeURIComponent(category)}` : '';
+    const res = await fetch(`${API_BASE}/api/pivot/country/${iso3}/summary${params}`);
+    if (!res.ok) throw new Error(`${res.status}`);
+    const data = await res.json();
+    return {
+      summary:  data.summary  || '',
+      links:    data.links    || [],
+      articles: data.articles || [],
+      category: data.category || category,
+    };
+  } catch {
+    return { summary: '', links: [], articles: [], category };
+  }
 }
 
-function credScore(a) {
-  if (typeof a.credibility_score === 'number') return a.credibility_score;
-  if (a.credibility === 'verified') return 86;
-  if ((a.source_name || '').toLowerCase().includes('reuters')) return 88;
-  return 64;
-}
+const ALL_CATS = CATEGORIES.filter(c => c.id !== 'all');
 
-export default function CountryPanel({ country, onClose }) {
-  const { summary, news, loadingSummary, loadingNews, error, fetchSummary, fetchNews } = usePivotCountry();
-  const [selCat, setSelCat]   = useState(null);
-  const [dispIdx, setDispIdx] = useState(0);
-  const [typed, setTyped]     = useState('');
+export default function CountryPanel({ country, activeCategory, onClose }) {
+  const { lang, current } = useLang();
+  const { translate, translating } = useTranslateSummary();
+
+  const [selCat, setSelCat]           = useState(activeCategory !== 'all' ? activeCategory : ALL_CATS[0]?.id);
+  const [rawData, setRawData]         = useState(null);
+  const [displaySummary, setDisplaySummary] = useState('');
+  const [loading, setLoading]         = useState(false);
+
+  // Load data from API
+  const load = useCallback(async (cat) => {
+    setLoading(true);
+    setRawData(null);
+    setDisplaySummary('');
+    const result = await fetchCategoryData(country.iso3, cat);
+    setRawData(result);
+    setLoading(false);
+  }, [country.iso3]);
 
   useEffect(() => {
-    if (country) { fetchSummary(country.iso3); setSelCat(null); }
-  }, [country, fetchSummary]);
+    const cat = activeCategory !== 'all' ? activeCategory : ALL_CATS[0]?.id || 'all';
+    setSelCat(cat);
+    load(cat);
+  }, [country.iso3, activeCategory, load]);
 
-  const cats = useMemo(() => summary?.category_scores?.map(i => i.category) || [], [summary]);
-
+  // Translate summary whenever rawData or language changes
   useEffect(() => {
-    const cat = selCat || cats[0];
-    if (country && cat) fetchNews(country.iso3, cat);
-  }, [cats, selCat, country, fetchNews]);
+    if (!rawData?.summary) { setDisplaySummary(''); return; }
+    if (lang === 'en') { setDisplaySummary(rawData.summary); return; }
 
-  // Animate index count
-  useEffect(() => {
-    if (!country?.index_value) { setDispIdx(0); return; }
-    const target = Math.round(country.index_value);
-    const step   = Math.max(1, Math.ceil(target / 30));
-    const id     = setInterval(() => {
-      setDispIdx(p => { const n = Math.min(target, p + step); if (n >= target) clearInterval(id); return n; });
-    }, 25);
-    return () => clearInterval(id);
-  }, [country]);
+    setDisplaySummary(''); // clear while translating
+    translate(rawData.summary, lang, current.name).then(setDisplaySummary);
+  }, [rawData, lang, current.name, translate]);
 
-  const metrics = useMemo(() => {
-    if (!summary) return [];
-    const s   = summary.category_scores || [];
-    const src = s.length ? s.reduce((a, i) => a + (i.source_count || 0), 0) / s.length : 0;
-    const fsh = s.length ? s.reduce((a, i) => a + (i.freshness_avg || 0), 0) / s.length : 0;
-    const art = Math.min(100, Math.round((summary.article_count_total / 60) * 100));
-    return [
-      { l: 'Overall',  v: Math.round(summary.overall_score),  p: Math.round(summary.overall_score), cls: 'r' },
-      { l: 'Articles', v: summary.article_count_total,         p: art, cls: art > 60 ? 'r' : 'g' },
-      { l: 'Sources',  v: Math.round(src * 10),               p: Math.min(100, Math.round(src * 10)), cls: 'g' },
-      { l: 'Freshness',v: Math.round(fsh * 100),              p: Math.round(fsh * 100), cls: 'g' },
-    ];
-  }, [summary]);
+  function switchCat(cat) {
+    setSelCat(cat);
+    load(cat);
+  }
 
-  const topics = useMemo(() => {
-    if (!summary?.category_scores?.length) return [];
-    return summary.category_scores.map(i => ({
-      key:       i.category,
-      label:     i.category.replaceAll('_', ' '),
-      sentiment: i.score >= 75 ? 'negative' : i.score >= 50 ? 'mixed' : 'positive',
-      count:     i.article_count,
-    }));
-  }, [summary]);
+  const catColor = CATEGORY_COLORS[selCat] || '#555';
+  const catLabel = CATEGORIES.find(c => c.id === selCat)?.label || selCat;
+  const gapLabel = getIndexLabel(country.index_value);
+  const gapColor = getIndexColor(country.index_value);
 
-  // Typewriter for brief
-  const brief = useMemo(() => buildBrief(country, summary, selCat), [country, summary, selCat]);
-  useEffect(() => {
-    if (!brief) { setTyped(''); return; }
-    setTyped('');
-    let i = 0;
-    const id = setInterval(() => { i++; setTyped(brief.slice(0, i)); if (i >= brief.length) clearInterval(id); }, 11);
-    return () => clearInterval(id);
-  }, [brief]);
+  const articles = (rawData?.articles || []).filter(a => a.title || a.headline);
+  const links    = [
+    ...(rawData?.links || []),
+    ...(rawData?.articles || []).map(a => a.url || a.link).filter(Boolean),
+  ].filter(Boolean).slice(0, 8);
 
-  if (!country) return null;
-
-  const color    = getIndexTextColor(country.index_value);
-  const severity = getSeverityLabel(country.index_value);
-  const trendUp  = (summary?.overall_score || 0) >= (country.index_value || 0);
+  const isTranslating = translating && lang !== 'en';
 
   return (
     <div className="panel">
       <div className="p-head">
-        <div className="p-head-row">
+        <div className="p-head-top">
           <div className="p-country">{country.name}</div>
           <button className="p-close" onClick={onClose}>×</button>
         </div>
-        <div className="p-iso">{country.iso3} — Crisis Monitor</div>
-      </div>
-
-      <div className="p-score-row">
-        <div className="p-score-num" style={{ color }}>{dispIdx}</div>
-        <div className="p-score-meta">
-          <span className="p-score-label">Invisible Index</span>
-          <span className="p-severity"
-            style={{ background: color + '14', color, border: `1px solid ${color}30` }}>
-            {severity}
+        <div className="p-meta">
+          <span
+            className="p-cat-tag"
+            style={{ background: catColor + '18', color: catColor, border: `1px solid ${catColor}30` }}
+          >
+            {catLabel}
           </span>
-        </div>
-        <div className="p-trend" style={{ color: trendUp ? 'var(--red)' : 'var(--green)' }}>
-          {trendUp ? '↑' : '↓'}
+          <span className="p-gap-label" style={{ color: gapColor }}>{gapLabel}</span>
         </div>
       </div>
-
-      {summary?.generated_at && (
-        <div className="p-updated">
-          Updated {new Date(summary.generated_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-        </div>
-      )}
 
       <div className="p-body">
-        {/* Metrics */}
-        {loadingSummary ? (
-          <div className="p-loading"><div className="spinner" />Analyzing ecosystem...</div>
-        ) : summary && (
-          <div>
-            <div className="sec-head">Signal Metrics</div>
-            <div className="metrics-grid">
-              {metrics.map((m, i) => (
-                <div key={m.l} className={`metric ${m.cls}`}
-                  style={{ '--p': `${m.p}%`, animationDelay: `${i * 60}ms` }}>
-                  <div className="metric-lbl">{m.l}</div>
-                  <div className="metric-val">{m.v}</div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
+        {/* Category tabs */}
+        <div className="p-cat-tabs">
+          {ALL_CATS.map(cat => (
+            <button
+              key={cat.id}
+              className={`p-cat-tab${selCat === cat.id ? ' on' : ''}`}
+              onClick={() => switchCat(cat.id)}
+            >
+              {cat.label}
+            </button>
+          ))}
+        </div>
 
-        {/* Topics */}
-        {!loadingSummary && topics.length > 0 && (
-          <div>
-            <div className="sec-head">Topics</div>
-            <div className="topic-row">
-              {topics.map(t => (
-                <button key={t.key}
-                  className={`topic${selCat === t.key ? ' on' : ''}`}
-                  onClick={() => { setSelCat(t.key); fetchNews(country.iso3, t.key); }}
-                >
-                  <span className={`t-dot ${t.sentiment}`} />
-                  {t.label}
-                  <span className="t-count">{t.count}</span>
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* News */}
+        {/* Summary */}
         <div>
-          <div className="sec-head">
-            Recent Coverage — {(selCat || cats[0] || 'all').replaceAll('_', ' ')}
+          <div className="sec-label" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <span>Coverage Summary</span>
+            {lang !== 'en' && (
+              <span style={{ fontSize: 9, color: 'var(--text3)', fontWeight: 400, letterSpacing: 0 }}>
+                {isTranslating ? '↻ Translating...' : `Translated · ${current.nativeName}`}
+              </span>
+            )}
           </div>
-          {loadingNews ? (
-            <div className="p-loading"><div className="spinner" />Fetching feed...</div>
-          ) : news.length === 0 ? (
-            <div className="news-empty">No articles found for this category.</div>
+          {loading || isTranslating ? (
+            <div className="p-summary-loading">
+              <div className="spinner" />
+              {loading ? 'Loading report...' : `Translating to ${current.name}...`}
+            </div>
           ) : (
-            <div className="news-list">
-              {news.map((a, i) => {
-                const cred  = credScore(a);
-                const imp   = a.impact_score || Math.min(99, Math.round((country.index_value || 0) + i * 3));
-                const edge  = cred >= 80 ? 'var(--green)' : cred >= 65 ? 'var(--amber)' : 'var(--red)';
-                const date  = a.published || a.published_at;
-                return (
-                  <a key={a.id || a.url || i} className="news-card"
-                    href={a.url || '#'} target="_blank" rel="noreferrer"
-                    style={{ borderLeftColor: edge }}>
-                    <div className="news-title">{a.title}</div>
-                    <div className="news-meta">
-                      <span className="news-src">{a.source_name || a.source}</span>
-                      <span className="news-date">
-                        {date ? new Date(date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }) : 'Recent'}
-                      </span>
-                    </div>
-                    <div className="news-bar">
-                      <span className="cred">{cred}</span>
-                      <div className="impact-bar">
-                        <div className="impact-fill" style={{ width: `${imp}%` }} />
+            <p className="p-summary" dir={current.rtl ? 'rtl' : 'ltr'}>
+              {displaySummary || 'No summary available for this category.'}
+            </p>
+          )}
+        </div>
+
+        {/* Article links */}
+        {!loading && (articles.length > 0 || links.length > 0) && (
+          <div>
+            <div className="sec-label">Source Articles</div>
+            <div className="articles-list">
+              {articles.length > 0
+                ? articles.map((a, i) => (
+                    <a key={i} className="article-link"
+                      href={a.url || a.link || '#'} target="_blank" rel="noreferrer">
+                      <div className="article-headline">{a.title || a.headline}</div>
+                      <div className="article-meta-row">
+                        {a.source && <span className="article-source">{a.source}</span>}
+                        <span className="article-arrow">↗</span>
                       </div>
-                    </div>
-                    <p className="news-desc">{a.description || a.summary || ''}</p>
-                  </a>
-                );
-              })}
+                    </a>
+                  ))
+                : links.map((url, i) => (
+                    <a key={i} className="article-link"
+                      href={url} target="_blank" rel="noreferrer">
+                      <div className="article-headline">
+                        {url.replace(/^https?:\/\/(www\.)?/, '').split('/')[0]}
+                      </div>
+                      <div className="article-meta-row">
+                        <span className="article-arrow">↗</span>
+                      </div>
+                    </a>
+                  ))
+              }
             </div>
-          )}
-        </div>
-
-        {/* Brief */}
-        <div>
-          <div className="sec-head">
-            Intel Brief<span className="brief-cursor">_</span>
           </div>
-          {loadingSummary ? (
-            <div className="p-loading"><div className="spinner" />Generating assessment...</div>
-          ) : (
-            <div className="brief-wrap">
-              <p className="brief-text">{typed}</p>
-            </div>
-          )}
-        </div>
+        )}
 
-        {error && <p className="p-err">{error}</p>}
+        {/* Translation tip for articles */}
+        {lang !== 'en' && (
+          <div className="translate-tip">
+            <strong>Articles open in English.</strong> Your browser can translate them — in Chrome, right-click and select "Translate to {current.name}".
+          </div>
+        )}
       </div>
     </div>
   );

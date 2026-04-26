@@ -1,0 +1,125 @@
+.lang-wrap {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.lang-trigger {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 0 14px;
+  height: 48px;
+  background: none;
+  border: none;
+  border-left: 1px solid var(--border);
+  color: var(--text2);
+  font-family: var(--sans);
+  font-size: 11px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: color 0.15s;
+  white-space: nowrap;
+}
+
+.lang-trigger:hover { color: var(--text); }
+
+.lang-current {
+  font-family: var(--sans);
+  font-size: 12px;
+}
+
+.lang-chevron {
+  color: var(--text3);
+  transition: transform 0.15s ease;
+  flex-shrink: 0;
+}
+
+.lang-chevron.open { transform: rotate(180deg); }
+
+/* ── Dropdown ────────────────────────────────────────────────────────────── */
+.lang-dropdown {
+  position: absolute;
+  top: calc(100% + 4px);
+  right: 0;
+  width: 240px;
+  background: var(--bg3);
+  border: 1px solid var(--border2);
+  border-radius: 4px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+  z-index: 200;
+  overflow: hidden;
+  animation: fade-up 0.15s ease;
+}
+
+.lang-search-wrap {
+  padding: 8px;
+  border-bottom: 1px solid var(--border);
+}
+
+.lang-search {
+  width: 100%;
+  padding: 6px 10px;
+  background: var(--bg);
+  border: 1px solid var(--border2);
+  border-radius: 3px;
+  color: var(--text);
+  font-family: var(--sans);
+  font-size: 11px;
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.lang-search:focus { border-color: var(--text3); }
+.lang-search::placeholder { color: var(--text3); }
+
+.lang-list {
+  max-height: 280px;
+  overflow-y: auto;
+}
+
+.lang-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 8px 12px;
+  background: none;
+  border: none;
+  color: var(--text2);
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.1s, color 0.1s;
+}
+
+.lang-item:hover {
+  background: var(--surface);
+  color: var(--text);
+}
+
+.lang-item.active {
+  color: var(--text);
+  background: var(--surface);
+}
+
+.lang-native {
+  font-family: var(--sans);
+  font-size: 12px;
+  font-weight: 500;
+  flex: 1;
+}
+
+.lang-english {
+  font-family: var(--mono);
+  font-size: 9px;
+  color: var(--text3);
+  font-weight: 300;
+}
+
+.lang-rtl-badge {
+  font-family: var(--mono);
+  font-size: 8px;
+  color: var(--amber);
+  border: 1px solid rgba(212,135,10,0.3);
+  padding: 1px 4px;
+  border-radius: 2px;
+}

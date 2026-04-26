@@ -1,0 +1,35 @@
+/* Add these to the end of CountryPanel.css */
+
+.p-lang-bar {
+  padding: 6px 20px;
+  border-bottom: 1px solid var(--border);
+  background: rgba(212,135,10,0.04);
+}
+
+.p-translating {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--mono);
+  font-size: 9px;
+  color: var(--amber);
+  letter-spacing: 0.5px;
+}
+
+.p-lang-active {
+  font-family: var(--mono);
+  font-size: 9px;
+  color: var(--text3);
+  letter-spacing: 0.5px;
+}
+
+.spinner-sm {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border: 1px solid rgba(212,135,10,0.3);
+  border-top-color: var(--amber);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+  flex-shrink: 0;
+}

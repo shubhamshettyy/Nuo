@@ -1,30 +1,27 @@
 import { scaleLinear } from 'd3-scale';
 
 export const getCountryColor = (val) => {
-  if (val == null) return '#151525';
+  if (val == null) return null; // will use CSS var
   const scale = scaleLinear()
     .domain([0, 25, 50, 75, 100])
-    .range(['#10b981', '#84cc16', '#fbbf24', '#f97316', '#ef4444']);
+    .range(['#a8d5a2', '#f9e07a', '#f4a460', '#e07040', '#c0392b']);
   return scale(Math.min(val, 100));
 };
 
-export const getIndexTextColor = (val) => {
-  if (val == null) return '#44445a';
-  if (val < 25) return '#10b981';
-  if (val < 50) return '#d4a017';
-  if (val < 75) return '#f97316';
-  return '#ef4444';
+export const getIndexLabel = (val) => {
+  if (val == null) return 'No data';
+  if (val < 20)  return 'Well covered';
+  if (val < 40)  return 'Moderate gap';
+  if (val < 60)  return 'Significant gap';
+  if (val < 80)  return 'Severe gap';
+  return 'Critical gap';
 };
 
-export const formatIndex = (val) => {
-  if (val == null) return 'N/A';
-  return Math.round(val);
-};
-
-export const getSeverityLabel = (val) => {
-  if (val == null) return 'No Data';
-  if (val < 25) return 'Low Risk';
-  if (val < 50) return 'Moderate';
-  if (val < 75) return 'Elevated';
-  return 'Critical';
+export const getIndexColor = (val) => {
+  if (val == null) return '#999';
+  if (val < 20)  return '#27ae60';
+  if (val < 40)  return '#f39c12';
+  if (val < 60)  return '#e67e22';
+  if (val < 80)  return '#e74c3c';
+  return '#c0392b';
 };

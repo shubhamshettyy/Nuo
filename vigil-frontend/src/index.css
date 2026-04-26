@@ -1,21 +1,55 @@
 :root {
-  --bg:         #0a0a0f;
-  --bg2:        #0f0f17;
-  --bg3:        #141420;
-  --surface:    #1a1a28;
-  --border:     rgba(255,255,255,0.06);
-  --border2:    rgba(255,255,255,0.10);
-  --text:       #e2e2ea;
-  --text2:      #8888a0;
-  --text3:      #44445a;
+  /* Light theme — default */
+  --bg:         #ffffff;
+  --bg2:        #fafafa;
+  --bg3:        #f5f5f5;
+  --surface:    #efefef;
+  --border:     #e2e2e2;
+  --border2:    #d0d0d0;
+  --text:       #121212;
+  --text2:      #555555;
+  --text3:      #999999;
+  --map-ocean:  #dce8f0;
+  --map-no-data:#d8d8d8;
   --red:        #c0392b;
-  --red-light:  #e05a4a;
-  --amber:      #d4870a;
-  --green:      #1a8a5a;
-  --blue:       #1a5a9a;
-  --sans:   'IBM Plex Sans',   system-ui, sans-serif;
-  --serif:  'IBM Plex Serif',  Georgia, serif;
-  --mono:   'IBM Plex Mono',   'Courier New', monospace;
+  --red-soft:   #e74c3c;
+  --green:      #27ae60;
+  --amber:      #e67e22;
+  --blue:       #2980b9;
+  --panel-bg:   #ffffff;
+  --panel-border: #e2e2e2;
+  --header-bg:  #ffffff;
+  --cat-active-bg: #121212;
+  --cat-active-text: #ffffff;
+
+  /* Typography */
+  --serif:  'Source Serif 4', Georgia, 'Times New Roman', serif;
+  --sans:   'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  --mono:   'JetBrains Mono', 'Courier New', monospace;
+}
+
+[data-theme="dark"] {
+  --bg:         #111111;
+  --bg2:        #191919;
+  --bg3:        #222222;
+  --surface:    #2a2a2a;
+  --border:     #2e2e2e;
+  --border2:    #3a3a3a;
+  --text:       #e8e8e8;
+  --text2:      #aaaaaa;
+  --text3:      #666666;
+  --map-ocean:  #1a2535;
+  --map-no-data:#252525;
+  --red:        #e74c3c;
+  --red-soft:   #c0392b;
+  --green:      #2ecc71;
+  --amber:      #f39c12;
+  --blue:       #3498db;
+  --panel-bg:   #191919;
+  --panel-border: #2e2e2e;
+  --header-bg:  #111111;
+  --cat-active-bg: #e8e8e8;
+  --cat-active-text: #111111;
 }
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -25,28 +59,48 @@ body {
   font-family: var(--sans);
   background: var(--bg);
   color: var(--text);
-  font-size: 13px;
+  font-size: 14px;
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
   overflow: hidden;
+  transition: background 0.25s ease, color 0.25s ease;
 }
 
 #root { height: 100vh; display: flex; flex-direction: column; }
 
-::-webkit-scrollbar { width: 3px; }
+::-webkit-scrollbar { width: 4px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
-::-webkit-scrollbar-thumb:hover { background: var(--text3); }
 
-/* ── Global animations ───────────────────────────────────────────────────── */
-@keyframes blink        { 0%,100%{opacity:1} 50%{opacity:0.2} }
-@keyframes pulse-dot    { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.6;transform:scale(0.85)} }
-@keyframes rotate-arm   { from{transform:rotate(0)} to{transform:rotate(360deg)} }
-@keyframes ring-out     { 0%{transform:translate(-50%,-50%) scale(1);opacity:0.7} 100%{transform:translate(-50%,-50%) scale(3.2);opacity:0} }
-@keyframes fade-up      { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
-@keyframes slide-in     { from{opacity:0;transform:translateX(16px)} to{opacity:1;transform:translateX(0)} }
-@keyframes ticker-scroll{ from{transform:translateX(0)} to{transform:translateX(-50%)} }
-@keyframes spin         { to{transform:rotate(360deg)} }
-@keyframes map-reveal   { from{opacity:0.4} to{opacity:1} }
-@keyframes count-up     { from{opacity:0;transform:translateY(4px)} to{opacity:1;transform:translateY(0)} }
-@keyframes hint-fade    { from{opacity:1} to{opacity:0;pointer-events:none} }
+/* ── Animations ──────────────────────────────────────────────────────────── */
+@keyframes pulse {
+  0%,100% { transform: scale(1); opacity: 1; }
+  50%      { transform: scale(1.8); opacity: 0; }
+}
+@keyframes dot-pulse {
+  0%,100% { opacity: 1; }
+  50%      { opacity: 0.4; }
+}
+@keyframes fade-in {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes slide-in {
+  from { opacity: 0; transform: translateX(20px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+@keyframes ticker {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+@keyframes hint-out {
+  from { opacity: 1; }
+  to   { opacity: 0; pointer-events: none; }
+}
+@keyframes ring-expand {
+  0%   { transform: translate(-50%,-50%) scale(1); opacity: 0.6; }
+  100% { transform: translate(-50%,-50%) scale(3); opacity: 0; }
+}

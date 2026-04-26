@@ -1,11 +1,10 @@
 import React, { memo, useState, useRef, useCallback, useEffect } from 'react';
 import { ComposableMap, Geographies, Geography, ZoomableGroup, Marker } from 'react-simple-maps';
-import { getCountryColor } from '../utils/colorScale';
+import { getCountryColor, getIndexLabel } from '../utils/colorScale';
 import { numericToAlpha3 } from '../utils/isoMapping';
-import { CATEGORIES } from '../data/mockData';
 import './WorldMap.css';
 
-const GEO_URL = 'https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json';
+const GEO = 'https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json';
 
 const CENTERS = {
   USA:[-97,38],CAN:[-96,56],MEX:[-102,24],GTM:[-90,15],HND:[-87,15],NIC:[-85,13],
@@ -28,41 +27,33 @@ const CENTERS = {
   ZAF:[25,-29],NGA:[8,10],GHA:[-1,8],CIV:[-5,8],SEN:[-14,14],MLI:[-2,17],
   NER:[8,17],CMR:[12,4],COD:[24,-4],AGO:[18,-12],SSD:[31,7],CAF:[20,7],
   TCD:[18,15],BFA:[-1,12],AUS:[133,-27],NZL:[174,-41],PSE:[35,31],
+  COL:[-74,4],ARG:[-64,-34],
 };
 
-// Minimal Bloomberg-style beacon — just a tiny dot + faint single ring sweep
+// Minimal — just a small pulsing dot
 function Beacon({ coords, critical }) {
-  const color = critical ? '#c0392b' : '#b8920a';
-  const r = critical ? 6 : 5;
-
+  const r = critical ? 3 : 2.2;
+  const color = critical ? '#c0392b' : '#e74c3c';
   return (
     <Marker coordinates={coords}>
-      <g className={`beacon-group${critical ? ' beacon-critical' : ''}`}>
-        {/* Single thin orbit */}
-        <circle r={r} fill="none" stroke={color} strokeWidth={0.5} strokeOpacity={0.3}
-          strokeDasharray="1 2.5" />
-        {/* Sweep arm — single thin line */}
-        <g className="beacon-arm">
-          <line x1="0" y1="0" x2={r * 0.75} y2="0"
-            stroke={color} strokeWidth={0.7} strokeOpacity={0.9} strokeLinecap="round" />
-        </g>
-        {/* Core dot */}
-        <circle className="beacon-dot" r={critical ? 1.8 : 1.4} fill={color} />
+      <g className="beacon">
+        <circle r={r * 2.5} fill={color} opacity={0.15} />
+        <circle className="beacon-dot" r={r} fill={color} />
       </g>
     </Marker>
   );
 }
 
-function WorldMap({ countries, onCountryClick, selectedCountry, activeCategory }) {
-  const [tt, setTt]       = useState({ on: false, x: 0, y: 0, name: '', val: null });
+function WorldMap({ countries, onCountryClick, selectedCountry, activeCategory, activeCatLabel }) {
+  const [tt, setTt]         = useState({ on: false, x: 0, y: 0, name: '', val: null });
   const [noHint, setNoHint] = useState(false);
-  const [transitioning, setTransitioning] = useState(false);
-  const prevCat = useRef(activeCategory);
+  const [fading, setFading] = useState(false);
+  const prevCat             = useRef(activeCategory);
 
   useEffect(() => {
     if (prevCat.current !== activeCategory) {
-      setTransitioning(true);
-      setTimeout(() => setTransitioning(false), 380);
+      setFading(true);
+      setTimeout(() => setFading(false), 300);
       prevCat.current = activeCategory;
     }
   }, [activeCategory]);
@@ -78,10 +69,8 @@ function WorldMap({ countries, onCountryClick, selectedCountry, activeCategory }
     setTt(p => ({ ...p, x: t.x, y: t.y }));
   }, []);
 
-  const catLabel = CATEGORIES.find(c => c.id === activeCategory)?.label || '';
-
   const beacons = countries
-    .filter(c => c.index_value >= 75 && CENTERS[c.iso3])
+    .filter(c => c.index_value >= 70 && CENTERS[c.iso3])
     .sort((a, b) => b.index_value - a.index_value)
     .slice(0, 12);
 
@@ -90,18 +79,17 @@ function WorldMap({ countries, onCountryClick, selectedCountry, activeCategory }
       <ComposableMap
         projection="geoMercator"
         projectionConfig={{ scale: 148, center: [10, 18] }}
-        style={{ opacity: transitioning ? 0.5 : 1, transition: 'opacity 0.38s ease' }}
+        style={{ opacity: fading ? 0.6 : 1, transition: 'opacity 0.3s ease' }}
       >
         <ZoomableGroup>
-          <Geographies geography={GEO_URL}>
+          <Geographies geography={GEO}>
             {({ geographies }) => geographies.map(geo => {
               const iso3 = numericToAlpha3[geo.id];
               const c    = dataMap[iso3];
               const val  = c?.index_value;
               const has  = val != null;
               const sel  = selectedCountry?.iso3 === iso3;
-
-              const fill = has ? getCountryColor(val) : '#151525';
+              const fill = has ? getCountryColor(val) : 'var(--map-no-data)';
 
               return (
                 <Geography
@@ -114,25 +102,26 @@ function WorldMap({ countries, onCountryClick, selectedCountry, activeCategory }
                   style={{
                     default: {
                       fill,
-                      stroke: sel ? 'rgba(255,255,255,0.7)' : '#060c18',
-                      strokeWidth: sel ? 1 : 0.25,
+                      stroke: '#ffffff',
+                      strokeWidth: sel ? 1.5 : 0.4,
                       outline: 'none',
-                      filter: sel ? 'brightness(1.3)' : 'none',
-                      transition: 'fill 0.38s ease',
+                      opacity: sel ? 1 : 0.9,
+                      filter: sel ? 'brightness(0.85)' : 'none',
+                      transition: 'fill 0.3s ease',
                     },
                     hover: {
-                      fill: has ? fill : '#151525',
-                      stroke: has ? 'rgba(255,255,255,0.35)' : '#060c18',
-                      strokeWidth: has ? 0.6 : 0.25,
+                      fill: has ? fill : 'var(--map-no-data)',
+                      stroke: '#ffffff',
+                      strokeWidth: 0.8,
                       outline: 'none',
-                      filter: has ? 'brightness(1.25)' : 'none',
+                      filter: has ? 'brightness(0.88)' : 'none',
                       cursor: has ? 'pointer' : 'default',
-                      transition: 'fill 0.38s ease',
+                      transition: 'fill 0.3s ease',
                     },
                     pressed: {
                       fill,
-                      stroke: 'rgba(192,57,43,0.7)',
-                      strokeWidth: 1.2,
+                      stroke: '#ffffff',
+                      strokeWidth: 1.5,
                       outline: 'none',
                     },
                   }}
@@ -142,30 +131,27 @@ function WorldMap({ countries, onCountryClick, selectedCountry, activeCategory }
           </Geographies>
 
           {beacons.map(c => (
-            <Beacon key={c.iso3} coords={CENTERS[c.iso3]} critical={c.index_value >= 88} />
+            <Beacon key={c.iso3} coords={CENTERS[c.iso3]} critical={c.index_value >= 85} />
           ))}
         </ZoomableGroup>
 
         {tt.on && (
-          <g className="map-tt" transform={`translate(${tt.x + 12} ${tt.y - 16})`}>
-            <rect width={145} height={activeCategory !== 'all' ? 50 : 40} rx="3" />
-            <text className="tt-country" x="10" y="16">{tt.name}</text>
-            <text className="tt-index"   x="10" y="30">Index {Math.round(tt.val)}</text>
-            {activeCategory !== 'all' && (
-              <text className="tt-category" x="10" y="43">{catLabel.toUpperCase()}</text>
-            )}
+          <g className="tt" transform={`translate(${tt.x + 12} ${tt.y - 16})`}>
+            <rect width={140} height={42} rx="3" />
+            <text className="tt-name" x="10" y="16">{tt.name}</text>
+            <text className="tt-val"  x="10" y="31">{getIndexLabel(tt.val)}</text>
           </g>
         )}
       </ComposableMap>
 
       {!noHint && !selectedCountry && (
         <div className="map-hint">
-          <div className="hint-indicator">
-            <div className="hint-ring" />
-            <div className="hint-ring hint-ring-2" />
+          <div className="hint-dot-wrap">
+            <div className="hint-ring-a" />
+            <div className="hint-ring-b" />
             <div className="hint-core" />
           </div>
-          Click any country to explore
+          Click any country to read the coverage report
         </div>
       )}
     </div>

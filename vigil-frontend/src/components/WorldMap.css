@@ -1,9 +1,10 @@
 .map-root {
   width: 100%;
   height: 100%;
-  background: #060c18;
+  background: var(--map-ocean);
   position: relative;
   overflow: hidden;
+  transition: background 0.25s ease;
 }
 
 .map-root svg {
@@ -11,80 +12,69 @@
   height: 100%;
 }
 
-/* ── Beacon — minimal dot + single ring ──────────────────────────────────── */
-.beacon-group { pointer-events: none; }
+/* ── Beacon — single pulsing dot, nothing else ───────────────────────────── */
+.beacon { pointer-events: none; }
 
-/* Sweep arm */
-.beacon-arm {
-  transform-box: fill-box;
-  transform-origin: center;
-  animation: rotate-arm 4s linear infinite;
-}
-.beacon-critical .beacon-arm { animation-duration: 2.2s; }
-
-/* Core dot pulse */
 .beacon-dot {
-  animation: pulse-dot 2.5s ease-in-out infinite;
+  animation: dot-pulse 2.5s ease-in-out infinite;
+}
+
+.beacon-ring {
+  position: absolute;
+  border-radius: 50%;
+  animation: ring-expand 2.5s ease-out infinite;
 }
 
 /* ── Tooltip ─────────────────────────────────────────────────────────────── */
-.map-tt { pointer-events: none; }
+.tt { pointer-events: none; }
 
-.map-tt rect {
-  fill: #0a0a10;
-  stroke: rgba(255,255,255,0.08);
+.tt rect {
+  fill: var(--bg);
+  stroke: var(--border);
   stroke-width: 1;
 }
 
-.tt-country {
-  fill: #e2e2ea;
-  font-family: 'IBM Plex Sans', sans-serif;
-  font-size: 11px;
-  font-weight: 500;
+.tt-name {
+  font-family: 'Source Serif 4', serif;
+  font-size: 12px;
+  font-weight: 600;
+  fill: var(--text);
 }
 
-.tt-index {
-  fill: #8888a0;
-  font-family: 'IBM Plex Mono', monospace;
+.tt-val {
+  font-family: 'JetBrains Mono', monospace;
   font-size: 10px;
-  font-weight: 300;
+  fill: var(--text2);
 }
 
-.tt-category {
-  fill: #44445a;
-  font-family: 'IBM Plex Mono', monospace;
-  font-size: 8px;
-  letter-spacing: 0.8px;
-}
-
-/* ── Click hint ──────────────────────────────────────────────────────────── */
+/* ── Hint ────────────────────────────────────────────────────────────────── */
 .map-hint {
   position: absolute;
-  bottom: 72px;
+  bottom: 70px;
   left: 50%;
   transform: translateX(-50%);
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 7px 16px;
-  background: rgba(10,10,16,0.85);
-  border: 1px solid rgba(255,255,255,0.08);
+  padding: 8px 16px;
+  background: var(--panel-bg);
+  border: 1px solid var(--border);
   border-radius: 2px;
-  font-family: 'IBM Plex Mono', monospace;
-  font-size: 10px;
-  font-weight: 300;
-  letter-spacing: 1.5px;
-  color: rgba(136,136,160,0.7);
+  font-size: 11px;
+  color: var(--text3);
   pointer-events: none;
   z-index: 20;
   white-space: nowrap;
-  animation: fade-up 0.5s ease 1s both, hint-fade 0.4s ease 9s forwards;
+  animation: fade-in 0.5s ease 1s both, hint-out 0.4s ease 9s forwards;
+  font-family: var(--sans);
+  font-weight: 400;
+  letter-spacing: 0.2px;
 }
 
-.hint-indicator {
+.hint-dot-wrap {
   position: relative;
-  width: 16px;
-  height: 16px;
+  width: 14px;
+  height: 14px;
   flex-shrink: 0;
 }
 
@@ -92,18 +82,18 @@
   position: absolute;
   top: 50%; left: 50%;
   transform: translate(-50%,-50%);
-  width: 4px; height: 4px;
+  width: 5px; height: 5px;
   border-radius: 50%;
-  background: #c0392b;
+  background: var(--red);
 }
 
-.hint-ring {
+.hint-ring-a, .hint-ring-b {
   position: absolute;
-  top: 50%; left: 50%;
-  width: 4px; height: 4px;
   border-radius: 50%;
-  border: 1px solid rgba(192,57,43,0.5);
-  animation: ring-out 2s ease-out infinite;
+  border: 1px solid rgba(192,57,43,0.4);
+  top: 50%; left: 50%;
+  width: 5px; height: 5px;
+  animation: ring-expand 2s ease-out infinite;
 }
 
-.hint-ring-2 { animation-delay: 0.9s; }
+.hint-ring-b { animation-delay: 1s; }

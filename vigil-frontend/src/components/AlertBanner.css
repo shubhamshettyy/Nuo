@@ -1,76 +1,68 @@
 .alert-bar {
-  height: 30px;
+  height: 32px;
   display: flex;
   align-items: center;
   gap: 12px;
   padding: 0 14px;
-  background: rgba(192,57,43,0.08);
-  border-bottom: 1px solid rgba(192,57,43,0.25);
+  background: #fff5f5;
+  border-bottom: 1px solid #fecaca;
   flex-shrink: 0;
   overflow: hidden;
+  transition: background 0.25s;
 }
 
-.alert-label {
-  font-family: var(--mono);
+[data-theme="dark"] .alert-bar {
+  background: rgba(192,57,43,0.1);
+  border-bottom-color: rgba(192,57,43,0.25);
+}
+
+.alert-tag {
   font-size: 9px;
-  font-weight: 500;
+  font-weight: 700;
   letter-spacing: 1.5px;
-  color: var(--red-light);
+  color: var(--red);
   white-space: nowrap;
   flex-shrink: 0;
-  animation: blink 2s step-end infinite;
+  text-transform: uppercase;
 }
 
-.alert-divider {
+.alert-sep {
   width: 1px;
   height: 12px;
-  background: rgba(192,57,43,0.3);
+  background: #fecaca;
   flex-shrink: 0;
 }
 
-.alert-ticker {
+[data-theme="dark"] .alert-sep { background: rgba(192,57,43,0.3); }
+
+.alert-ticker-wrap {
   flex: 1;
   overflow: hidden;
   mask-image: linear-gradient(to right, transparent, #000 4%, #000 96%, transparent);
 }
 
-.alert-scroll {
+.alert-ticker {
   display: flex;
   width: max-content;
   gap: 60px;
-  animation: ticker-scroll 36s linear infinite;
-  font-family: var(--mono);
-  font-size: 10px;
-  font-weight: 300;
-  color: rgba(192,57,43,0.75);
-  letter-spacing: 0.3px;
-  white-space: nowrap;
-}
-
-.alert-country {
-  font-family: var(--mono);
-  font-size: 9px;
-  font-weight: 500;
+  animation: ticker 35s linear infinite;
+  font-size: 11px;
   color: var(--red);
-  padding: 1px 7px;
-  border: 1px solid rgba(192,57,43,0.35);
-  border-radius: 2px;
-  letter-spacing: 1px;
-  flex-shrink: 0;
-  text-transform: uppercase;
+  white-space: nowrap;
+  font-family: var(--sans);
+  font-weight: 400;
 }
 
 .alert-close {
   background: none;
   border: none;
-  color: rgba(192,57,43,0.4);
-  font-size: 14px;
+  color: var(--text3);
+  font-size: 16px;
   cursor: pointer;
   padding: 0;
-  line-height: 1;
   flex-shrink: 0;
-  font-family: var(--sans);
   transition: color 0.15s;
+  line-height: 1;
 }
 
-.alert-close:hover { color: var(--red); }
+.alert-close:hover { color: var(--text); }
