@@ -32,7 +32,7 @@ function App() {
       
       <header className="header">
         <div className="header-brand">
-          <div className="brand-name">VIGIL</div>
+          <div className="brand-name">NUO</div>
           <div className="brand-tagline">Global Information Integrity Monitor</div>
         </div>
         
@@ -70,7 +70,7 @@ function App() {
       <main className="main">
         {loading && (
           <div className="boot">
-            <div className="boot-title">VIGIL</div>
+            <div className="boot-title">NUO</div>
             <div className="boot-sub">Loading global data...</div>
             <div className="boot-bar">
               <div className="boot-fill" style={{ transform: 'scaleX(0.7)' }}></div>

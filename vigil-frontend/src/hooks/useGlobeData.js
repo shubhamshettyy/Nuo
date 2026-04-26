@@ -9,46 +9,64 @@ export function useGlobeData() {
   const [error, setError] = useState(null);
 
   useEffect(() => {
+    let isMounted = true; // ✅ DECLARE VARIABLE BEFORE USE
+
     async function fetchCountries() {
       if (USE_MOCK_DATA) {
         // Use mock data
         try {
           const { mockCountries } = await import('../data/mockData');
-          setCountries(mockCountries);
-          setLoading(false);
+          if (isMounted) {
+            setCountries(mockCountries);
+            setLoading(false);
+          }
         } catch (err) {
-          setError(err.message);
-          setLoading(false);
+          if (isMounted) {
+            setError(err.message);
+            setLoading(false);
+          }
         }
         return;
       }
-      try {
-        const res  = await fetch(`${API_BASE_URL}/api/globe`);
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        const data = await res.json();
-        if (isMounted) {
-          // Find max index_value to normalise to 0-100
-          const raw = data.countries || [];
-          const maxVal = Math.max(...raw.map(c => c.index_value || 0), 1);
 
-          const normalised = raw.map(c => ({
-            ...c,
-            iso3:          c.iso3,
-            index_value:   Math.min(Math.round((c.index_value / maxVal) * 100), 100),
-            raw_index:     c.index_value,
-            article_count: c.article_count_filtered,
+      // Fetch from real backend API
+      try {
+        const response = await fetch(`${API_BASE_URL}/api/globe`);
+        
+        if (!response.ok) {
+          throw new Error(`Failed to fetch countries: ${response.status}`);
+        }
+
+        const data = await response.json();
+        
+        if (isMounted) {
+          // Transform backend data to frontend format
+          const transformedCountries = (data.countries || []).map(country => ({
+            iso3: country.iso3,
+            name: country.name,
+            index_value: country.index_value,
+            latitude: country.latitude,
+            longitude: country.longitude,
           }));
-          setCountries(normalised);
+
+          console.log(`[useGlobeData] Loaded ${transformedCountries.length} countries from backend`);
+          setCountries(transformedCountries);
           setLoading(false);
         }
-      } catch {
-        if (isMounted) { setCountries(mockCountries); setLoading(false); setError(null); }
+      } catch (err) {
+        console.error('[useGlobeData] Error fetching countries:', err);
+        if (isMounted) {
+          setError(err.message);
+          setLoading(false);
+        }
       }
-    };
+    }
 
-    fetchData();
-    const interval = USE_MOCK_DATA ? null : setInterval(fetchData, 30000);
-    return () => { isMounted = false; if (interval) clearInterval(interval); };
+    fetchCountries(); // ✅ CALL THE CORRECT FUNCTION NAME
+
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   return { countries, loading, error };
