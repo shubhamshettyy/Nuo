@@ -22,37 +22,33 @@ export function useGlobeData() {
         }
         return;
       }
-
-      // Fetch real data from backend
       try {
-        const response = await fetch(`${API_BASE_URL}/api/globe`);
-        
-        if (!response.ok) {
-          throw new Error(`Failed to fetch countries: ${response.status}`);
+        const res  = await fetch(`${API_BASE_URL}/api/globe`);
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const data = await res.json();
+        if (isMounted) {
+          // Find max index_value to normalise to 0-100
+          const raw = data.countries || [];
+          const maxVal = Math.max(...raw.map(c => c.index_value || 0), 1);
+
+          const normalised = raw.map(c => ({
+            ...c,
+            iso3:          c.iso3,
+            index_value:   Math.min(Math.round((c.index_value / maxVal) * 100), 100),
+            raw_index:     c.index_value,
+            article_count: c.article_count_filtered,
+          }));
+          setCountries(normalised);
+          setLoading(false);
         }
-
-        const data = await response.json();
-        
-        // Transform backend data to frontend format
-        const transformedCountries = (data.countries || []).map(country => ({
-          iso3: country.iso3,
-          name: country.name,
-          index_value: country.index_value,
-          latitude: country.latitude,
-          longitude: country.longitude,
-        }));
-
-        console.log(`[useGlobeData] Loaded ${transformedCountries.length} countries from backend`);
-        setCountries(transformedCountries);
-        setLoading(false);
-      } catch (err) {
-        console.error('[useGlobeData] Error fetching countries:', err);
-        setError(err.message);
-        setLoading(false);
+      } catch {
+        if (isMounted) { setCountries(mockCountries); setLoading(false); setError(null); }
       }
-    }
+    };
 
-    fetchCountries();
+    fetchData();
+    const interval = USE_MOCK_DATA ? null : setInterval(fetchData, 30000);
+    return () => { isMounted = false; if (interval) clearInterval(interval); };
   }, []);
 
   return { countries, loading, error };
