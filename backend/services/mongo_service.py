@@ -209,3 +209,69 @@ class MongoDataApiService:
         if not self.configured or not documents:
             return
         await self._db()["quarantine_log"].insert_many(documents)
+
+    async def upsert_country_news(
+        self,
+        country: str,
+        category: str,
+        links: list[str],
+        articles: list[dict[str, Any]],
+        summary: str,
+        updated_at: str,
+        score_impact: float = 0.0,
+        score_ripple: float = 0.0,
+        score_resonance: float = 0.0,
+        final_score: float = 0.0,
+    ) -> None:
+        if not self.configured:
+            print("[Mongo] upsert_country_news skipped — MONGO_URI not set")
+            return
+        doc_id = f"{country}_{category}"
+        await self._db()["country_category_news"].update_one(
+            {"_id": doc_id},
+            {"$set": {
+                "_id": doc_id,
+                "country": country,
+                "category": category,
+                "links": links,
+                "articles": articles,
+                "summary": summary,
+                "score_impact": score_impact,
+                "score_ripple": score_ripple,
+                "score_resonance": score_resonance,
+                "final_score": final_score,
+                "updated_at": updated_at,
+            }},
+            upsert=True,
+        )
+        print(f"[Mongo] upserted {country}/{category} final_score={final_score}")
+
+    async def patch_country_scores(
+        self,
+        country: str,
+        category: str,
+        score_impact: float,
+        score_ripple: float,
+        score_resonance: float,
+        final_score: float,
+    ) -> None:
+        if not self.configured:
+            return
+        doc_id = f"{country}_{category}"
+        await self._db()["country_category_news"].update_one(
+            {"_id": doc_id},
+            {"$set": {
+                "score_impact": score_impact,
+                "score_ripple": score_ripple,
+                "score_resonance": score_resonance,
+                "final_score": final_score,
+            }},
+        )
+        print(f"[Mongo] patched scores for {country}/{category} final_score={final_score}")
+
+    async def get_country_news(self, country: str) -> list[dict[str, Any]]:
+        if not self.configured:
+            return []
+        cursor = self._db()["country_category_news"].find({"country": country})
+        docs = await cursor.to_list(length=50)
+        return [{k: v for k, v in d.items() if k != "_id"} for d in docs]

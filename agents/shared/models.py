@@ -3,24 +3,22 @@ from typing import Dict, List
 from uagents import Model
 
 
-class RawDataPayload(Model):
-    countries: Dict[str, float]
-    article_counts_raw: Dict[str, int]
-    article_counts_filtered: Dict[str, int]
-    suffering_scores: Dict[str, float]
-    attention_scores: Dict[str, float]
+class ScoreRequest(Model):
+    item_id: str
+    country: str
+    category: str
+    articles: List[Dict]  # [{title, url, content}] — content capped before sending
+    cycle_id: str
+
+
+class ScoreResponse(Model):
+    item_id: str
+    agent_type: str   # "impact" | "ripple" | "resonance"
+    score: float
     cycle_id: str
 
 
 class VerifiedIndexUpdate(Model):
     countries: Dict[str, float]
     quarantined: List[str]
-    cycle_id: str
-
-
-class AlertPayload(Model):
-    country_code: str
-    previous_score: float
-    new_score: float
-    delta: float
     cycle_id: str

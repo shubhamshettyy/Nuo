@@ -29,6 +29,19 @@ class QuarantinePayload(BaseModel):
     documents: list[dict[str, Any]]
 
 
+class CountryNewsPayload(BaseModel):
+    country: str
+    category: str
+    links: list[str]
+    articles: list[dict[str, Any]] = []
+    summary: str
+    score_impact: float = 0.0
+    score_ripple: float = 0.0
+    score_resonance: float = 0.0
+    final_score: float = 0.0
+    updated_at: str
+
+
 router = APIRouter(tags=["internal"])
 mongo = MongoDataApiService()
 settings = get_settings()
@@ -65,6 +78,36 @@ async def upsert_countries(payload: CountryUpsertPayload, x_webhook_secret: str 
 async def log_quarantine(payload: QuarantinePayload, x_webhook_secret: str = Header(default="")):
     _check_secret(x_webhook_secret)
     await mongo.insert_quarantine(payload.documents)
+    return {"ok": True}
+
+
+@router.post("/internal/country-news")
+async def receive_country_news(payload: CountryNewsPayload, x_webhook_secret: str = Header(default="")):
+    _check_secret(x_webhook_secret)
+    await mongo.upsert_country_news(
+        payload.country, payload.category, payload.links, payload.articles,
+        payload.summary, payload.updated_at,
+        payload.score_impact, payload.score_ripple, payload.score_resonance, payload.final_score,
+    )
+    return {"ok": True}
+
+
+class CountryScoresPayload(BaseModel):
+    country: str
+    category: str
+    score_impact: float
+    score_ripple: float
+    score_resonance: float
+    final_score: float
+
+
+@router.patch("/internal/country-news/scores")
+async def patch_country_scores(payload: CountryScoresPayload, x_webhook_secret: str = Header(default="")):
+    _check_secret(x_webhook_secret)
+    await mongo.patch_country_scores(
+        payload.country, payload.category,
+        payload.score_impact, payload.score_ripple, payload.score_resonance, payload.final_score,
+    )
     return {"ok": True}
 
 
