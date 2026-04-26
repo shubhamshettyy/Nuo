@@ -3,6 +3,7 @@ import random
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any
+from backend.utils.country_mappings import ISO3_TO_NAME
 
 try:
     from backend.config import get_settings
@@ -162,7 +163,7 @@ class MongoDataApiService:
     async def get_country(self, iso3: str) -> dict[str, Any]:
         if not self.configured:
             for item in self._mock_data()["countries"]:
-                if item.get("_id") == iso3.upper():
+                if item.get("country") == iso3.upper():
                     return _normalize_country(item)
             return {}
 
