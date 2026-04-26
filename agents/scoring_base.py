@@ -89,6 +89,24 @@ def build_articles_block(articles: list[dict]) -> str:
     return "\n\n---\n\n".join(lines) if lines else "(no article content available)"
 
 
+def _gemma_generate(prompt: str, label: str) -> str:
+    """Call Gemma with exponential backoff on rate limit errors."""
+    import time
+    for attempt in range(6):
+        try:
+            response = _client.models.generate_content(model=GEMMA_MODEL, contents=prompt)
+            return response.text.strip()
+        except Exception as exc:
+            msg = str(exc)
+            if "429" in msg or "RESOURCE_EXHAUSTED" in msg or "quota" in msg.lower():
+                wait = 30 * (2 ** attempt)  # 30, 60, 120, 240, 480, 960s
+                print(f"[{label}] rate limited — waiting {wait}s (attempt {attempt+1})")
+                time.sleep(wait)
+            else:
+                raise
+    raise RuntimeError(f"[{label}] exhausted retries")
+
+
 def call_gemma(agent_type: str, country: str, category: str, articles: list[dict], item_id: str) -> float:
     if not _client:
         print(f"[{agent_type}] GEMMA_API_KEY not set")
@@ -98,14 +116,12 @@ def call_gemma(agent_type: str, country: str, category: str, articles: list[dict
     prompt = PROMPTS[agent_type].format(scale=_SCALE, country=country, category=category, articles_block=block)
 
     try:
-        response = _client.models.generate_content(model=GEMMA_MODEL, contents=prompt)
-        raw = response.text.strip()
+        raw = _gemma_generate(prompt, f"{agent_type}/{item_id}")
         if raw.startswith("```"):
             raw = raw.split("```")[1]
             if raw.startswith("json"):
                 raw = raw[4:]
         data = json.loads(raw.strip())
-        # key may be "score", "impact_score", "ripple_score", or "resonance_score"
         score = float(next(iter(data.values())))
         print(f"[{agent_type}] {item_id} → {score}")
         return score
