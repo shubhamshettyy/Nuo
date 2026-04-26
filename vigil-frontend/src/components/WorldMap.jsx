@@ -18,8 +18,6 @@ function WorldMap({ countries, onCountryClick, selectedCountry }) {
     return acc;
   }, {});
 
-  console.log('✅ Countries loaded:', countries.length);
-
   return (
     <div className="world-map-container">
       <ComposableMap
@@ -46,7 +44,6 @@ function WorldMap({ countries, onCountryClick, selectedCountry }) {
                     geography={geo}
                     onClick={() => {
                       if (country) {
-                        console.log('🌍 Clicked:', country.name, '(' + iso3 + ')');
                         onCountryClick(country);
                       }
                     }}

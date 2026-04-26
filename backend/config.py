@@ -15,6 +15,14 @@ class Settings(BaseSettings):
 
     frontend_origin: str = "*"
 
+    currents_api_key: str = ""
+    currents_base_url: str = "https://api.currentsapi.services"
+    currents_api_version: str = "v2"
+    pivot_countries: str = "AO,SD"
+    pivot_categories: str = "health,technology"
+    pivot_lookback_days: int = 14
+    pivot_page_size: int = 20
+
 
 @lru_cache(maxsize=1)
 def get_settings() -> Settings:

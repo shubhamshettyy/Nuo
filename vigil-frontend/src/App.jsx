@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { useGlobeData } from './hooks/useGlobeData';
 import WorldMap from './components/WorldMap';
 import CountryPanel from './components/CountryPanel';
-import AlertBanner from './components/AlertBanner';
 import './App.css';
 
 function App() {

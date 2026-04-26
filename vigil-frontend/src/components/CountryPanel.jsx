@@ -1,24 +1,31 @@
-import React, { useEffect } from 'react';
-import { useBrief } from '../hooks/useBrief';
-import { useCountryDetails } from '../hooks/useCountryDetails';
+import React, { useEffect, useMemo, useState } from 'react';
 import { formatIndex, getSeverityLabel, getIndexTextColor } from '../utils/colorScale';
+import { usePivotCountry } from '../hooks/usePivotCountry';
 import './CountryPanel.css';
 
 export default function CountryPanel({ country, onClose }) {
-  const { brief, loading: briefLoading, error: briefError, fetchBrief } = useBrief();
-  const { details, loading: detailsLoading, fetchDetails } = useCountryDetails();
+  const { summary, news, loadingSummary, loadingNews, error, fetchSummary, fetchNews } = usePivotCountry();
+  const [selectedCategory, setSelectedCategory] = useState(null);
 
   useEffect(() => {
     if (country) {
-      fetchBrief(country.iso3, country);
-      fetchDetails(country.iso3);
+      fetchSummary(country.iso3);
     }
-  }, [country, fetchBrief, fetchDetails]);
+  }, [country, fetchSummary]);
+
+  const categories = useMemo(() => {
+    if (!summary?.category_scores) return [];
+    return summary.category_scores.map((item) => item.category);
+  }, [summary]);
+
+  useEffect(() => {
+    if (!categories.length || !country?.iso3) return;
+    const nextCategory = selectedCategory && categories.includes(selectedCategory) ? selectedCategory : categories[0];
+    setSelectedCategory(nextCategory);
+    fetchNews(country.iso3, nextCategory);
+  }, [categories, selectedCategory, country, fetchNews]);
 
   if (!country) return null;
-
-  const trendIcon = details?.trend === 'up' ? '↑' : details?.trend === 'down' ? '↓' : '→';
-  const trendColor = details?.trend === 'up' ? '#ef4444' : details?.trend === 'down' ? '#10b981' : '#9ca3af';
 
   return (
     <div className="country-panel">
@@ -37,14 +44,6 @@ export default function CountryPanel({ country, onClose }) {
             <div className="index-value" style={{ color: getIndexTextColor(country.index_value) }}>
               {formatIndex(country.index_value)}
             </div>
-            {details && (
-              <div className="trend-indicator" style={{ color: trendColor }}>
-                <span className="trend-icon">{trendIcon}</span>
-                <span className="trend-value">
-                  {details.change_24h > 0 ? '+' : ''}{details.change_24h?.toFixed(1)}
-                </span>
-              </div>
-            )}
           </div>
           <div className="index-label">Integrity Index</div>
           <div className="severity-badge" style={{ 
@@ -53,136 +52,77 @@ export default function CountryPanel({ country, onClose }) {
           }}>
             {getSeverityLabel(country.index_value)}
           </div>
-          {details && (
-            <div className="last-updated">
-              Updated: {new Date(details.last_updated).toLocaleTimeString()}
-            </div>
-          )}
+          {summary?.generated_at && <div className="last-updated">Updated: {new Date(summary.generated_at).toLocaleTimeString()}</div>}
         </div>
 
-        {/* Metrics Grid */}
-        {details && details.metrics && (
-          <div className="metrics-section">
-            <h3>Key Metrics</h3>
-            <div className="metrics-grid">
-              <div className="metric-card">
-                <div className="metric-label">Misinformation</div>
-                <div className="metric-value" style={{ 
-                  color: details.metrics.misinformation_score > 70 ? '#ef4444' : 
-                         details.metrics.misinformation_score > 40 ? '#fbbf24' : '#10b981'
-                }}>
-                  {details.metrics.misinformation_score}%
-                </div>
-              </div>
-              <div className="metric-card">
-                <div className="metric-label">Bot Activity</div>
-                <div className="metric-value" style={{ 
-                  color: details.metrics.bot_activity > 70 ? '#ef4444' : 
-                         details.metrics.bot_activity > 40 ? '#fbbf24' : '#10b981'
-                }}>
-                  {details.metrics.bot_activity}%
-                </div>
-              </div>
-              <div className="metric-card">
-                <div className="metric-label">Fact-Check Ratio</div>
-                <div className="metric-value" style={{ 
-                  color: details.metrics.fact_check_ratio < 30 ? '#ef4444' : 
-                         details.metrics.fact_check_ratio < 60 ? '#fbbf24' : '#10b981'
-                }}>
-                  {details.metrics.fact_check_ratio}%
-                </div>
-              </div>
-              <div className="metric-card">
-                <div className="metric-label">Source Diversity</div>
-                <div className="metric-value" style={{ 
-                  color: details.metrics.source_diversity < 30 ? '#ef4444' : 
-                         details.metrics.source_diversity < 60 ? '#fbbf24' : '#10b981'
-                }}>
-                  {details.metrics.source_diversity}%
-                </div>
-              </div>
-            </div>
+        {loadingSummary && (
+          <div className="brief-loading">
+            <div className="spinner"></div>
+            <p>Loading category scores...</p>
           </div>
         )}
 
-        {/* Trending Topics */}
-        {details && details.trending_topics && details.trending_topics.length > 0 && (
-          <div className="trending-section">
-            <h3>Trending Topics</h3>
-            <div className="trending-list">
-              {details.trending_topics.map((topic, index) => (
-                <div key={index} className="trending-item">
-                  <div className="trending-topic">{topic.topic}</div>
-                  <div className="trending-meta">
-                    <span className="trending-volume">{topic.volume.toLocaleString()} mentions</span>
-                    <span className={`trending-sentiment sentiment-${topic.sentiment}`}>
-                      {topic.sentiment}
-                    </span>
-                  </div>
-                </div>
+        {!loadingSummary && summary && (
+          <div className="metrics-section">
+            <h3>News Visibility Score</h3>
+            <div className="summary-score-row">
+              <div className="summary-score-card">
+                <div className="metric-label">Overall score</div>
+                <div className="metric-value">{summary.overall_score}</div>
+              </div>
+              <div className="summary-score-card">
+                <div className="metric-label">Articles (14d)</div>
+                <div className="metric-value">{summary.article_count_total}</div>
+              </div>
+            </div>
+            <div className="metrics-grid">
+              {summary.category_scores.map((item) => (
+                <button
+                  key={item.category}
+                  className={`metric-card category-card ${selectedCategory === item.category ? 'active' : ''}`}
+                  onClick={() => {
+                    setSelectedCategory(item.category);
+                    fetchNews(country.iso3, item.category);
+                  }}
+                >
+                  <div className="metric-label">{item.category.replaceAll('_', ' ')}</div>
+                  <div className="metric-value">{item.score}</div>
+                  <div className="metric-subtext">{item.article_count} articles</div>
+                </button>
               ))}
             </div>
           </div>
         )}
 
-        {/* News Articles */}
-        {details && details.news_articles && details.news_articles.length > 0 && (
-          <div className="news-section">
-            <h3>Recent News</h3>
+        <div className="news-section">
+          <h3>Recent News ({selectedCategory || 'category'})</h3>
+          {loadingNews ? (
+            <div className="brief-loading">
+              <div className="spinner"></div>
+              <p>Loading articles...</p>
+            </div>
+          ) : news.length === 0 ? (
+            <div className="empty-state">No articles found for this category in the selected window.</div>
+          ) : (
             <div className="news-list">
-              {details.news_articles.map((article) => (
-                <div key={article.id} className="news-article">
+              {news.map((article) => (
+                <a key={article.id || article.url} className="news-article" href={article.url} target="_blank" rel="noreferrer">
                   <div className="article-header">
                     <h4 className="article-title">{article.title}</h4>
                     <div className="article-meta">
-                      <span className="article-source">{article.source}</span>
+                      <span className="article-source">{article.source_name || 'unknown source'}</span>
                       <span className="article-time">
-                        {new Date(article.published).toLocaleDateString()} · {new Date(article.published).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                        {article.published ? new Date(article.published).toLocaleDateString() : 'unknown date'}
                       </span>
                     </div>
                   </div>
-                  <p className="article-summary">{article.summary}</p>
-                  <div className="article-footer">
-                    <span className="article-credibility">{article.credibility}</span>
-                    <span className="article-impact">
-                      Impact: {article.impact_score}/100
-                    </span>
-                  </div>
-                </div>
+                  <p className="article-summary">{article.description || 'No description available.'}</p>
+                </a>
               ))}
-            </div>
-          </div>
-        )}
-
-        {/* Intelligence Brief */}
-        <div className="brief-section">
-          <h3>Intelligence Brief</h3>
-          
-          {briefLoading && (
-            <div className="brief-loading">
-              <div className="spinner"></div>
-              <p>Generating brief...</p>
-            </div>
-          )}
-
-          {briefError && (
-            <div className="brief-error">
-              <p>⚠️ Failed to load brief</p>
-              <button onClick={() => fetchBrief(country.iso3, country)}>Retry</button>
-            </div>
-          )}
-
-          {brief && !briefLoading && (
-            <div className="brief-content">
-              <p>{brief.brief_text}</p>
-              {brief.timestamp && (
-                <p className="brief-timestamp">
-                  Generated: {new Date(brief.timestamp).toLocaleString()}
-                </p>
-              )}
             </div>
           )}
         </div>
+        {error && <div className="brief-error"><p>⚠️ {error}</p></div>}
       </div>
     </div>
   );

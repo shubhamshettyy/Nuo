@@ -149,11 +149,38 @@
   gap: 12px;
 }
 
+.summary-score-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.summary-score-card {
+  background: rgba(255, 255, 255, 0.05);
+  padding: 14px;
+  border-radius: 8px;
+  text-align: center;
+}
+
 .metric-card {
   background: rgba(255, 255, 255, 0.05);
   padding: 16px;
   border-radius: 8px;
   text-align: center;
+  border: none;
+  color: inherit;
+}
+
+.category-card {
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.2s;
+  border: 1px solid transparent;
+}
+
+.category-card.active {
+  border-color: #3b82f6;
+  background: rgba(59, 130, 246, 0.15);
 }
 
 .metric-label {
@@ -167,6 +194,12 @@
 .metric-value {
   font-size: 28px;
   font-weight: 700;
+}
+
+.metric-subtext {
+  font-size: 12px;
+  color: #9ca3af;
+  margin-top: 4px;
 }
 
 /* Trending Topics */
@@ -262,6 +295,9 @@
   padding: 16px;
   border-radius: 8px;
   border-left: 3px solid #3b82f6;
+  display: block;
+  text-decoration: none;
+  color: inherit;
 }
 
 .article-header {
@@ -306,6 +342,14 @@
   align-items: center;
   padding-top: 12px;
   border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.empty-state {
+  padding: 18px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.05);
+  color: #9ca3af;
+  font-size: 13px;
 }
 
 .article-credibility {
