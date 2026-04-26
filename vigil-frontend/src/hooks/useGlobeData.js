@@ -22,12 +22,15 @@ export function useGlobeData() {
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const data = await res.json();
         if (isMounted) {
-          const normalised = (data.countries || []).map(c => ({
+          // Find max index_value to normalise to 0-100
+          const raw = data.countries || [];
+          const maxVal = Math.max(...raw.map(c => c.index_value || 0), 1);
+
+          const normalised = raw.map(c => ({
             ...c,
-            iso3:        c._id || c.iso3,
-            latitude:    c.lat,
-            longitude:   c.lng,
-            index_value: Math.min(Math.round((c.invisible_index / 20000) * 100), 100),
+            iso3:          c.iso3,
+            index_value:   Math.min(Math.round((c.index_value / maxVal) * 100), 100),
+            raw_index:     c.index_value,
             article_count: c.article_count_filtered,
           }));
           setCountries(normalised);
