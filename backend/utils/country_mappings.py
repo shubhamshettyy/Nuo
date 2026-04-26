@@ -129,7 +129,7 @@ ISO3_TO_NAME = {
     "BFA": "Burkina Faso",
     
     # Africa - Central
-    "COD": "Democratic Republic of the Congo",
+    "COD": "Congo",
     "AGO": "Angola",
     "SSD": "South Sudan",
     "CAF": "Central African Republic",
