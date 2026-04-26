@@ -1,3 +1,4 @@
+import { getCountryName } from '../data/country-names';
 import React, { memo, useState, useRef, useCallback, useEffect } from 'react';
 import { ComposableMap, Geographies, Geography, ZoomableGroup, Marker } from 'react-simple-maps';
 import { getCountryColor, getIndexLabel } from '../utils/colorScale';
@@ -25,7 +26,7 @@ const CENTERS = {
   TUN:[9,34],DZA:[3,28],MAR:[-5,32],SDN:[30,16],ETH:[40,8],SOM:[46,6],
   KEN:[37,-1],TZA:[35,-6],MOZ:[35,-18],ZWE:[30,-20],ZMB:[28,-14],
   ZAF:[25,-29],NGA:[8,10],GHA:[-1,8],CIV:[-5,8],SEN:[-14,14],MLI:[-2,17],
-  NER:[8,17],CMR:[12,4],COD:[24,-4],AGO:[18,-12],SSD:[31,7],CAF:[20,7],
+  NER:[8,17],CMR:[12,4],COD:[24,-4],DEM:[24,-4],AGO:[18,-12],SSD:[31,7],CAF:[20,7],
   TCD:[18,15],BFA:[-1,12],AUS:[133,-27],NZL:[174,-41],PSE:[35,31],
 };
 
@@ -43,7 +44,7 @@ function Beacon({ coords, critical }) {
   );
 }
 
-function WorldMap({ countries, onCountryClick, selectedCountry, activeCategory, activeCatLabel }) {
+function WorldMap({ countries, onCountryClick, selectedCountry, activeCategory, activeCatLabel, lang = "en" }) {
   const [tt, setTt]         = useState({ on: false, x: 0, y: 0, name: '', val: null });
   const [noHint, setNoHint] = useState(false);
   const [fading, setFading] = useState(false);
