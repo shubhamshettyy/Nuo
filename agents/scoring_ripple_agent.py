@@ -20,8 +20,10 @@ agent = Agent(
 
 @agent.on_message(model=ScoreRequest)
 async def handle(ctx: Context, sender: str, msg: ScoreRequest):
+    import asyncio
     ctx.logger.info(f"[ripple] scoring {msg.item_id}")
-    score = call_gemma("ripple", msg.country, msg.category, msg.articles, msg.item_id)
+    loop = asyncio.get_event_loop()
+    score = await loop.run_in_executor(None, call_gemma, "ripple", msg.country, msg.category, msg.articles, msg.item_id)
     await ctx.send(sender, ScoreResponse(
         item_id=msg.item_id,
         agent_type="ripple",
